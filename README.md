@@ -2,7 +2,6 @@
 
 # 🍒 Cherry Weather
 
-[![Android CI](https://github.com/asta-JC/Cherry-Weather/actions/workflows/android.yml/badge.svg)](https://github.com/asta-JC/Cherry-Weather/actions)
 [![Kotlin](https://img.shields.io/badge/Kotlin-2.0+-purple.svg?style=flat&logo=kotlin)](https://kotlinlang.org)
 [![Jetpack Compose](https://img.shields.io/badge/Jetpack_Compose-UI-blue.svg?style=flat&logo=jetpackcompose)](https://developer.android.com/jetpack/compose)
 [![Material 3](https://img.shields.io/badge/Material_3-Expressive-orange.svg?style=flat&logo=materialdesign)](https://m3.material.io)
