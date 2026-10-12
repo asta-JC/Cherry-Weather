@@ -139,8 +139,10 @@ Contributions, bug reports, and feature requests are welcome! Feel free to check
 
 ## 📄 License
 
-Distributed under the MIT License. See `LICENSE` for more information.
+This project is developed as part of Asta's project series. Feel free to use and adapt for personal and educational use!
 
-<div align="center">
-  <p>Made with 🍒 and Jetpack Compose</p>
-</div>
+---
+
+<p align="center">
+  Made with ❤️ & 🍒 by Asta
+</p>
