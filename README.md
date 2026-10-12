@@ -33,6 +33,14 @@ Powered by the free **Open-Meteo API**, Cherry Weather requires no API keys to g
 
 ---
 
+## 📸 Screenshots
+
+| Home | Details | Search |
+|---|---|---|
+| ![Home](screenshots/screenshot-home.jpg) | ![Details](screenshots/screenshot-details.jpg) | ![Search](screenshots/screenshot-search.jpg) |
+
+---
+
 ## 🛠️ Tech Stack & Architecture
 
 - **UI Framework**: [Jetpack Compose](https://developer.android.com/jetpack/compose) with [Material 3](https://m3.material.io) (Expressive components, dynamic theming).
