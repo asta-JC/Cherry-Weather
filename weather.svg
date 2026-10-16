@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 108 108" width="512" height="512">
+  <!-- Background -->
+  <rect width="108" height="108" rx="24" fill="#F50D46"/>
+
+  <!-- Cherry Stem & Leaf on the Sun -->
+  <path d="M43 33 C43 24, 50 19, 56 17" stroke="#FFFFFF" stroke-width="3.8" stroke-linecap="round" fill="none"/>
+  <path d="M43 26 C35 20, 29 24, 33 29 C36 32, 41 29, 43 26 Z" fill="#FFFFFF"/>
+
+  <!-- Cherry Sun -->
+  <circle cx="43" cy="45" r="12" fill="#FFFFFF"/>
+
+  <!-- Weather Cloud (with red cutout outline for contrast) -->
+  <path d="M42 74 H70 C76.6 74 82 68.6 82 62 C82 55.8 77.3 50.7 71.2 50.1 C69.4 42.6 62.7 37 54.5 37 C45.4 37 38 44.4 38 53.5 C38 54.1 38 54.7 38.1 55.2 C33.5 56.6 30 60.9 30 66 C30 70.4 35.4 74 42 74 Z" 
+        fill="#FFFFFF" stroke="#F50D46" stroke-width="3" stroke-linejoin="round"/>
+</svg>
