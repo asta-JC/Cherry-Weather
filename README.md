@@ -2,12 +2,11 @@
 
 # 🍒 Cherry Weather
 
-[![Kotlin](https://img.shields.io/badge/Kotlin-2.0+-purple.svg?style=flat&logo=kotlin)](https://kotlinlang.org)
-[![Jetpack Compose](https://img.shields.io/badge/Jetpack_Compose-UI-blue.svg?style=flat&logo=jetpackcompose)](https://developer.android.com/jetpack/compose)
-[![Material 3](https://img.shields.io/badge/Material_3-Expressive-orange.svg?style=flat&logo=materialdesign)](https://m3.material.io)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+<p align="center">
+  <img src="app/src/main/res/drawable/icon.png" width="108" alt="Cherry Weather Logo" />
+</p>
 
-**A modern, beautifully crafted Android weather application built entirely with Jetpack Compose, featuring real-time Open-Meteo forecasts, dynamic custom Canvas weather animations, location onboarding, unit toggling, and robust DataStore persistence.**
+> A modern, beautifully crafted Android weather application featuring real-time Open-Meteo forecasts, dynamic custom Canvas weather animations, and Material 3 Expressive theming. 🌤️✨
 
 </div>
 
@@ -15,39 +14,37 @@
 
 ## 📱 Overview
 
-**Cherry Weather** is a premium weather companion designed for Android with a delightful Material 3 Expressive aesthetic. It provides instant access to hyper-local weather conditions, 24-hour hourly trends, 7-day daily forecasts, and advanced meteorological details (UV index, wind speed, humidity, pressure, visibility, and dew point). 
-
-Powered by the free **Open-Meteo API**, Cherry Weather requires no API keys to get started, ensuring zero-configuration setup for developers and users alike.
+**Cherry Weather** is a premium weather companion designed for Android with an expressive Material 3 dark aesthetic. Powered by the keyless Open-Meteo API, it delivers hyper-local current weather conditions, 24-hour hourly trends, 7-day extended forecasts, and advanced meteorological metrics (UV index, wind speed, humidity, pressure, visibility, and dew point) with zero configuration.
 
 ---
 
 ## ✨ Key Features
 
-- **🌤️ Open-Meteo Weather Integration**: Fast, reliable, and keyless real-time weather data, hourly forecasts, and 7-day outlooks.
-- **📍 Smart Location Onboarding & Geocoding**: Automatic GPS location detection via device location services combined with an interactive city search dialog supporting geocoding auto-complete.
-- **🎨 Immersive Custom Canvas Animations**: Dynamic particle and vector weather effects rendered via Jetpack Compose `Canvas`—watch rain drops fall, snow drift, clouds float, and sun rays beam depending on live weather conditions.
-- **🌡️ Instant Unit Toggle**: Seamlessly switch between Metric (`°C`, `km/h`) and Imperial (`°F`, `mph`) with reactive UI updates across all components.
-- **💾 Jetpack DataStore Caching**: Persistent user preferences and cached weather responses ensure lightning-fast cold starts and offline resilience.
-- **🎨 Material 3 Expressive & Edge-to-Edge**: Full edge-to-edge layout immersion with dynamic color support (Material You), smooth state transitions, and polished loading skeletons.
+- 🌤️ **Open-Meteo Integration**: Fast, reliable, keyless weather data, hourly trends, and 7-day outlooks.
+- 📍 **Smart Location & Geocoding**: GPS location detection combined with an interactive city search dialog supporting auto-complete.
+- 🎨 **Custom Canvas Animations**: Dynamic particle and vector weather effects rendered via Jetpack Compose `Canvas` (rain, snow, clouds, sun rays).
+- 🌡️ **Instant Unit Toggle**: Switch between Metric (`°C`, `km/h`) and Imperial (`°F`, `mph`) with reactive instant UI updates.
+- 💾 **DataStore Caching**: Persistent user preferences and cached forecasts for instant cold starts and offline resilience.
+- 📱 **Material 3 Expressive**: Edge-to-edge layout immersion with dynamic theming and smooth state transitions.
 
 ---
 
-## 📸 Screenshots
+## 📸 Screenshots & UI Preview
 
 | Home | Details | Search |
-|---|---|---|
-| ![Home](screenshots/screenshot-home.jpg) | ![Details](screenshots/screenshot-details.jpg) | ![Search](screenshots/screenshot-search.jpg) |
+| :---: | :---: | :---: |
+| <img src="screenshots/screenshot-home.jpg" width="220" alt="Home" /> | <img src="screenshots/screenshot-details.jpg" width="220" alt="Details" /> | <img src="screenshots/screenshot-search.jpg" width="220" alt="Search" /> |
 
 ---
 
 ## 🛠️ Tech Stack & Architecture
 
-- **UI Framework**: [Jetpack Compose](https://developer.android.com/jetpack/compose) with [Material 3](https://m3.material.io) (Expressive components, dynamic theming).
-- **Architecture**: MVVM (Model-View-ViewModel) with Kotlin Coroutines and `StateFlow` for unidirectional data flow.
-- **Networking**: OkHttp & Moshi for robust HTTP requests and JSON parsing.
-- **Local Storage**: Jetpack Preferences DataStore for type-safe preference management.
-- **Location**: Android Location Services & Geocoding API.
-- **Testing**: JUnit 4, Kotlin Coroutines Test, and MockK for comprehensive unit and repository testing.
+- **UI Toolkit**: [Jetpack Compose](https://developer.android.com/jetpack/compose) & [Material 3](https://m3.material.io/)
+- **Architecture**: MVVM with Unidirectional Data Flow (`StateFlow`)
+- **Networking**: OkHttp & Moshi for JSON parsing
+- **Local Storage**: Jetpack Preferences DataStore
+- **Location**: Android Location Services & Geocoding API
+- **Canvas Graphics**: Custom Compose Canvas particle physics
 
 ---
 
@@ -55,58 +52,30 @@ Powered by the free **Open-Meteo API**, Cherry Weather requires no API keys to g
 
 ```tree
 com.asta.cherryweather/
-│
 ├── data/
-│   ├── local/
-│   │   └── UserPreferencesRepository.kt     # DataStore preferences management
-│   ├── location/
-│   │   └── LocationService.kt               # GPS location provider & permissions
-│   ├── model/
-│   │   ├── WeatherResponse.kt               # Open-Meteo API response models
-│   │   ├── GeocodingResponse.kt             # City search geocoding models
-│   │   └── TemperatureUnit.kt               # Metric / Imperial unit enum
-│   ├── remote/
-│   │   ├── NetworkClient.kt                 # OkHttp / Moshi client setup
-│   │   ├── OpenMeteoApiService.kt           # Weather API endpoints
-│   │   └── GeocodingApiService.kt           # Geocoding search API endpoints
-│   └── repository/
-│       └── WeatherRepository.kt             # Single source of truth for weather data
-│
+│   ├── local/              # DataStore user preferences
+│   ├── location/           # GPS location service & permissions
+│   ├── model/              # Weather & Geocoding response models
+│   ├── remote/             # OkHttp, Moshi, and Open-Meteo API clients
+│   └── repository/         # Single source of truth WeatherRepository
 ├── ui/
-│   ├── components/
-│   │   ├── CherryTopBar.kt                  # App bar with search & unit toggle
-│   │   ├── CherryHeroSection.kt             # Current weather highlight card
-│   │   ├── CherryHourlyForecast.kt          # Horizontal 24-hour forecast strip
-│   │   ├── CherryDailyForecastCard.kt       # 7-day extended forecast view
-│   │   ├── CherryDetailsGrid.kt             # Detailed weather metrics grid
-│   │   ├── CherrySearchDialog.kt            # City search & selection dialog
-│   │   ├── CherryLocationPermission.kt      # Location onboarding flow
-│   │   ├── CherryLoadingSkeleton.kt         # Shimmer loading placeholders
-│   │   └── canvas/
-│   │       └── CherryWeatherCanvasAnimation.kt # Dynamic custom canvas weather effects
-│   ├── theme/
-│   │   ├── Color.kt                         # Material color tokens & palettes
-│   │   ├── Theme.kt                         # Dynamic Material 3 theme wrapper
-│   │   └── Type.kt                          # Typography definitions
-│   └── utils/
-│       ├── WeatherUtils.kt                  # Formatting & weather code mappers
-│       └── SampleData.kt                    # Previews & offline mock data
-│
-├── viewmodel/
-│   └── WeatherViewModel.kt                  # UI state holder & business logic
-└── MainActivity.kt                          # App entry point & lifecycle host
+│   ├── components/         # TopBar, HeroSection, HourlyForecast, DailyForecast, Canvas animations
+│   ├── theme/              # Color palettes, typography, and M3 theme
+│   └── utils/              # Weather code mappers & sample data
+├── viewmodel/              # WeatherViewModel & WeatherUiState
+└── MainActivity.kt         # Entry point activity & lifecycle host
 ```
 
 ---
 
-## 🚀 Getting Started
+## 🚀 Getting Started & Build Instructions
 
 ### Prerequisites
-- [Android Studio](https://developer.android.com/studio) Ladybug or newer.
-- JDK 17 or higher.
-- Android SDK 34+ (Target SDK 35).
+- Android Studio Ladybug or newer
+- JDK 17 or higher
+- Android SDK 26+ (Target SDK 35)
 
-### Installation & Running
+### Build Steps
 
 1. **Clone the repository**:
    ```bash
@@ -115,32 +84,20 @@ com.asta.cherryweather/
    ```
 
 2. **Open in Android Studio**:
-   - Select **Open an Existing Project** and choose the `Cherry-Weather` root folder.
-   - Let Gradle sync dependencies automatically.
+   - Open Android Studio and select **Open**.
+   - Navigate to the cloned `Cherry-Weather` directory and let Gradle sync.
 
-3. **Build and Run**:
-   - Connect an Android device or start an emulator (API 26+).
+3. **Build & Run**:
+   - Connect an Android device or start an emulator.
    - Run the app via Android Studio or execute via terminal:
      ```bash
-     ./gradlew assembleDebug
+     ./gradlew :app:assembleDebug
      ```
 
 4. **Run Unit Tests**:
    ```bash
    ./gradlew testDebugUnitTest
    ```
-
----
-
-## 🤝 Contributing
-
-Contributions, bug reports, and feature requests are welcome! Feel free to check out the [issues page](https://github.com/asta-JC/Cherry-Weather/issues).
-
-1. Fork the Project
-2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the Branch (`git origin push feature/AmazingFeature`)
-5. Open a Pull Request
 
 ---
 
