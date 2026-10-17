@@ -12,14 +12,14 @@ import androidx.core.view.WindowCompat
 private val CherryDarkColorScheme = darkColorScheme(
     primary = PrimaryCherry,
     onPrimary = TextWhite,
-    primaryContainer = BorderCrimson,
-    onPrimaryContainer = TextWhite,
-    secondary = GradientStart,
-    onSecondary = TextWhite,
+    primaryContainer = CardDarkPlumElevated,
+    onPrimaryContainer = CherryBlossom,
+    secondary = CherryBlossom,
+    onSecondary = BackgroundDark,
     secondaryContainer = CardDarkPlumElevated,
     onSecondaryContainer = TextWhite,
-    tertiary = GradientEnd,
-    onTertiary = TextWhite,
+    tertiary = CherryGold,
+    onTertiary = BackgroundDark,
     background = BackgroundDark,
     onBackground = TextWhite,
     surface = CardDarkPlum,
@@ -27,8 +27,8 @@ private val CherryDarkColorScheme = darkColorScheme(
     surfaceVariant = CardDarkPlumElevated,
     onSurfaceVariant = TextMuted,
     outline = BorderCrimson,
-    outlineVariant = BorderCrimson,
-    error = GradientStart,
+    outlineVariant = BorderCrimsonSolid,
+    error = PrimaryCherry,
     onError = TextWhite
 )
 

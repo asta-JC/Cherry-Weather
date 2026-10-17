@@ -40,6 +40,8 @@ class MainActivity : ComponentActivity() {
                     val coarseGranted = permissions[Manifest.permission.ACCESS_COARSE_LOCATION] ?: false
                     if (fineGranted || coarseGranted) {
                         viewModel.fetchWeatherForCurrentLocation()
+                    } else {
+                        viewModel.dismissPermissionBanner()
                     }
                 }
 
@@ -63,19 +65,24 @@ class MainActivity : ComponentActivity() {
                 when (val state = uiState) {
                     is WeatherUiState.Loading -> {
                         CherryWeatherView(
-                            cityName = "LOCATING...",
+                            cityName = "Locating...",
                             weatherResponse = null,
                             isLoading = true,
                             unit = TemperatureUnit.CELSIUS,
                             animationsEnabled = true,
                             hasLocationPermission = true,
+                            hasSavedLocation = false,
                             isGpsDisabled = false,
                             searchResults = emptyList(),
+                            recentCities = emptyList(),
                             isSearchingLocations = false,
                             onRequestLocationPermission = onRequestPermission,
+                            onRescanLocation = { viewModel.rescanGpsLocation(onRequestPermission) },
                             onManualSearchSubmit = { viewModel.searchCities(it) },
                             onSearchQueryChange = { viewModel.searchCities(it) },
                             onLocationSelected = { viewModel.selectCity(it) },
+                            onRecentCitySelected = { viewModel.selectRecentCity(it) },
+                            onDismissPermissionBanner = { viewModel.dismissPermissionBanner() },
                             onUnitToggle = { viewModel.toggleTemperatureUnit() },
                             onAnimationToggle = { viewModel.toggleAnimations() },
                             onRefresh = { viewModel.refreshWeather() },
@@ -92,13 +99,18 @@ class MainActivity : ComponentActivity() {
                             unit = state.temperatureUnit,
                             animationsEnabled = state.animationsEnabled,
                             hasLocationPermission = state.locationPermissionGranted,
+                            hasSavedLocation = state.hasSavedLocation,
                             isGpsDisabled = !state.gpsEnabled,
                             searchResults = state.searchResults,
+                            recentCities = state.recentCities,
                             isSearchingLocations = state.isSearching,
                             onRequestLocationPermission = onRequestPermission,
+                            onRescanLocation = { viewModel.rescanGpsLocation(onRequestPermission) },
                             onManualSearchSubmit = { viewModel.searchCities(it) },
                             onSearchQueryChange = { viewModel.searchCities(it) },
                             onLocationSelected = { viewModel.selectCity(it) },
+                            onRecentCitySelected = { viewModel.selectRecentCity(it) },
+                            onDismissPermissionBanner = { viewModel.dismissPermissionBanner() },
                             onUnitToggle = { viewModel.toggleTemperatureUnit() },
                             onAnimationToggle = { viewModel.toggleAnimations() },
                             onRefresh = { viewModel.refreshWeather() },
@@ -108,20 +120,25 @@ class MainActivity : ComponentActivity() {
 
                     is WeatherUiState.Error -> {
                         CherryWeatherView(
-                            cityName = "OFFLINE / UNKNOWN",
+                            cityName = "Offline",
                             weatherResponse = null,
                             isLoading = false,
                             errorMessage = state.message,
                             unit = TemperatureUnit.CELSIUS,
                             animationsEnabled = true,
                             hasLocationPermission = false,
+                            hasSavedLocation = false,
                             isGpsDisabled = false,
                             searchResults = emptyList(),
+                            recentCities = emptyList(),
                             isSearchingLocations = false,
                             onRequestLocationPermission = onRequestPermission,
+                            onRescanLocation = { viewModel.rescanGpsLocation(onRequestPermission) },
                             onManualSearchSubmit = { viewModel.searchCities(it) },
                             onSearchQueryChange = { viewModel.searchCities(it) },
                             onLocationSelected = { viewModel.selectCity(it) },
+                            onRecentCitySelected = { viewModel.selectRecentCity(it) },
+                            onDismissPermissionBanner = { viewModel.dismissPermissionBanner() },
                             onUnitToggle = { viewModel.toggleTemperatureUnit() },
                             onAnimationToggle = { viewModel.toggleAnimations() },
                             onRefresh = { viewModel.refreshWeather() },
@@ -136,8 +153,8 @@ class MainActivity : ComponentActivity() {
 
     override fun onResume() {
         super.onResume()
-        // Re-check location / weather state when returning to foreground
-        viewModel.fetchWeatherForCurrentLocation()
+        // Silently refresh forecast for active saved location without nagging for GPS
+        viewModel.refreshWeatherSilent()
     }
 }
 
@@ -146,19 +163,24 @@ class MainActivity : ComponentActivity() {
 fun CherryWeatherViewPreview() {
     CherryWeatherTheme {
         CherryWeatherView(
-            cityName = "TOKYO // SHINJUKU",
+            cityName = "Tokyo",
             weatherResponse = SampleData.mockWeatherResponse,
             isLoading = false,
             unit = TemperatureUnit.CELSIUS,
             animationsEnabled = true,
             hasLocationPermission = true,
+            hasSavedLocation = true,
             isGpsDisabled = false,
             searchResults = emptyList(),
+            recentCities = listOf("Tokyo", "Kyoto", "Paris"),
             isSearchingLocations = false,
             onRequestLocationPermission = {},
+            onRescanLocation = {},
             onManualSearchSubmit = {},
             onSearchQueryChange = {},
             onLocationSelected = {},
+            onRecentCitySelected = {},
+            onDismissPermissionBanner = {},
             onUnitToggle = {},
             onAnimationToggle = {}
         )
@@ -170,19 +192,24 @@ fun CherryWeatherViewPreview() {
 fun CherryWeatherLoadingPreview() {
     CherryWeatherTheme {
         CherryWeatherView(
-            cityName = "LOCATING...",
+            cityName = "Locating...",
             weatherResponse = null,
             isLoading = true,
             unit = TemperatureUnit.CELSIUS,
             animationsEnabled = true,
             hasLocationPermission = true,
+            hasSavedLocation = false,
             isGpsDisabled = false,
             searchResults = emptyList(),
+            recentCities = emptyList(),
             isSearchingLocations = false,
             onRequestLocationPermission = {},
+            onRescanLocation = {},
             onManualSearchSubmit = {},
             onSearchQueryChange = {},
             onLocationSelected = {},
+            onRecentCitySelected = {},
+            onDismissPermissionBanner = {},
             onUnitToggle = {},
             onAnimationToggle = {}
         )
@@ -194,19 +221,24 @@ fun CherryWeatherLoadingPreview() {
 fun CherryWeatherPermissionBannerPreview() {
     CherryWeatherTheme {
         CherryWeatherView(
-            cityName = "TOKYO // SHINJUKU",
+            cityName = "Tokyo",
             weatherResponse = SampleData.mockWeatherResponse,
             isLoading = false,
             unit = TemperatureUnit.CELSIUS,
             animationsEnabled = true,
             hasLocationPermission = false,
+            hasSavedLocation = false,
             isGpsDisabled = false,
             searchResults = emptyList(),
+            recentCities = emptyList(),
             isSearchingLocations = false,
             onRequestLocationPermission = {},
+            onRescanLocation = {},
             onManualSearchSubmit = {},
             onSearchQueryChange = {},
             onLocationSelected = {},
+            onRecentCitySelected = {},
+            onDismissPermissionBanner = {},
             onUnitToggle = {},
             onAnimationToggle = {}
         )

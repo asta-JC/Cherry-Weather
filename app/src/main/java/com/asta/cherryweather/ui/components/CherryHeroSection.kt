@@ -1,21 +1,37 @@
 package com.asta.cherryweather.ui.components
 
+import androidx.compose.animation.core.EaseInOutQuad
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Thermostat
+import androidx.compose.material.icons.rounded.WaterDrop
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -31,19 +47,23 @@ import com.asta.cherryweather.data.model.TemperatureUnit
 import com.asta.cherryweather.ui.theme.BorderCrimson
 import com.asta.cherryweather.ui.theme.CardDarkPlum
 import com.asta.cherryweather.ui.theme.CardDarkPlumElevated
+import com.asta.cherryweather.ui.theme.CherryBlossom
+import com.asta.cherryweather.ui.theme.CherryBlossomSoft
 import com.asta.cherryweather.ui.theme.GradientEnd
 import com.asta.cherryweather.ui.theme.GradientStart
 import com.asta.cherryweather.ui.theme.PrimaryCherry
 import com.asta.cherryweather.ui.theme.TextMuted
 import com.asta.cherryweather.ui.theme.TextWhite
 import com.asta.cherryweather.ui.utils.WeatherUtils
+import kotlinx.coroutines.delay
 
 @Composable
 fun CherryHeroSection(
     currentWeather: CurrentWeather?,
     todayDaily: DailyItem?,
     unit: TemperatureUnit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    timezone: String? = null
 ) {
     val temp = currentWeather?.temperature2m
     val apparentTemp = currentWeather?.apparentTemperature
@@ -55,26 +75,100 @@ fun CherryHeroSection(
 
     val maxTemp = todayDaily?.maxTemp
     val minTemp = todayDaily?.minTemp
+    val precipSum = todayDaily?.precipitationSum ?: currentWeather?.precipitation
+
+    // Real-time ticking date & clock
+    var heroDateTimeText by remember(timezone) {
+        mutableStateOf(WeatherUtils.formatHeroDateTime(timezone))
+    }
+
+    LaunchedEffect(timezone) {
+        while (true) {
+            heroDateTimeText = WeatherUtils.formatHeroDateTime(timezone)
+            delay(10_000L)
+        }
+    }
+
+    // Gentle pulsing animation for the live status dot
+    val infiniteTransition = rememberInfiniteTransition(label = "live_pulse")
+    val pulseAlpha by infiniteTransition.animateFloat(
+        initialValue = 0.35f,
+        targetValue = 1.0f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(1200, easing = EaseInOutQuad),
+            repeatMode = RepeatMode.Reverse
+        ),
+        label = "pulse_alpha"
+    )
 
     Surface(
         modifier = modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 8.dp),
-        color = CardDarkPlum,
-        shape = RoundedCornerShape(24.dp),
+            .padding(horizontal = 16.dp, vertical = 6.dp),
+        color = CardDarkPlum.copy(alpha = 0.90f),
+        shape = RoundedCornerShape(28.dp),
         border = androidx.compose.foundation.BorderStroke(1.dp, BorderCrimson)
     ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(24.dp),
+                .padding(vertical = 24.dp, horizontal = 20.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(12.dp)
+            verticalArrangement = Arrangement.spacedBy(10.dp)
         ) {
-            // Weather Icon Badge
+            // Real-Time Live Status Pill with Date and Clock
+            Surface(
+                color = CardDarkPlumElevated.copy(alpha = 0.85f),
+                shape = RoundedCornerShape(20.dp),
+                border = androidx.compose.foundation.BorderStroke(1.dp, BorderCrimson.copy(alpha = 0.6f))
+            ) {
+                Row(
+                    modifier = Modifier.padding(horizontal = 14.dp, vertical = 6.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    // Pulsing emerald indicator for live real-time status
+                    Box(
+                        modifier = Modifier
+                            .size(7.dp)
+                            .clip(CircleShape)
+                            .background(Color(0xFF4ADE80).copy(alpha = pulseAlpha))
+                    )
+
+                    Text(
+                        text = "LIVE NOW",
+                        style = MaterialTheme.typography.labelSmall.copy(
+                            fontWeight = FontWeight.ExtraBold,
+                            fontSize = 10.sp,
+                            letterSpacing = 1.sp,
+                            color = Color(0xFF4ADE80)
+                        )
+                    )
+
+                    Text(
+                        text = "•",
+                        style = MaterialTheme.typography.labelSmall.copy(
+                            color = BorderCrimson
+                        )
+                    )
+
+                    Text(
+                        text = heroDateTimeText,
+                        style = MaterialTheme.typography.labelSmall.copy(
+                            fontWeight = FontWeight.Medium,
+                            fontSize = 12.sp,
+                            color = CherryBlossomSoft
+                        )
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(2.dp))
+
+            // Weather Icon with soft glowing sakura badge
             Box(
                 modifier = Modifier
-                    .size(64.dp)
+                    .size(72.dp)
                     .shadow(16.dp, CircleShape, spotColor = PrimaryCherry, ambientColor = PrimaryCherry)
                     .clip(CircleShape)
                     .background(
@@ -82,77 +176,93 @@ fun CherryHeroSection(
                             colors = listOf(GradientStart, GradientEnd)
                         )
                     )
-                    .border(1.5.dp, Color.White.copy(alpha = 0.6f), CircleShape),
+                    .border(1.5.dp, CherryBlossomSoft.copy(alpha = 0.5f), CircleShape),
                 contentAlignment = Alignment.Center
             ) {
+
                 Icon(
                     imageVector = icon,
-                    contentDescription = "Current Weather Condition",
+                    contentDescription = "Weather condition",
                     tint = TextWhite,
-                    modifier = Modifier.size(36.dp)
+                    modifier = Modifier.size(40.dp)
                 )
             }
 
-            // Temperature Hero Display
-            Text(
-                text = WeatherUtils.formatTemperature(temp, unit),
-                style = MaterialTheme.typography.displayLarge.copy(
-                    fontSize = 72.sp,
-                    lineHeight = 76.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = PrimaryCherry
-                )
-            )
+            Spacer(modifier = Modifier.height(2.dp))
 
-            // Weather Condition Description
+            // Temperature Display
+            Row(
+                verticalAlignment = Alignment.Top,
+                horizontalArrangement = Arrangement.Center
+            ) {
+                Text(
+                    text = WeatherUtils.formatTemperature(temp, unit),
+                    style = MaterialTheme.typography.displayLarge.copy(
+                        fontSize = 80.sp,
+                        lineHeight = 84.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = TextWhite
+                    )
+                )
+            }
+
+            // Condition Title
             Text(
                 text = description,
-                style = MaterialTheme.typography.titleMedium.copy(
-                    fontWeight = FontWeight.Bold,
-                    letterSpacing = 2.0.sp,
-                    color = TextWhite
+                style = MaterialTheme.typography.titleLarge.copy(
+                    fontWeight = FontWeight.SemiBold,
+                    color = CherryBlossomSoft
                 )
             )
 
-            // Feels Like & High/Low Row
+            // Frosted Badges Row (Feels Like, High/Low, Precipitation)
             Row(
-                modifier = Modifier.padding(top = 4.dp),
-                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                modifier = Modifier.padding(top = 8.dp),
+                horizontalArrangement = Arrangement.spacedBy(10.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 // Feels like badge
                 Box(
                     modifier = Modifier
-                        .clip(RoundedCornerShape(12.dp))
+                        .clip(RoundedCornerShape(16.dp))
                         .background(CardDarkPlumElevated)
-                        .border(1.dp, BorderCrimson, RoundedCornerShape(12.dp))
-                        .padding(horizontal = 12.dp, vertical = 6.dp)
+                        .border(1.dp, BorderCrimson, RoundedCornerShape(16.dp))
+                        .padding(horizontal = 14.dp, vertical = 8.dp)
                 ) {
-                    Text(
-                        text = "FEELS ${WeatherUtils.formatTemperature(apparentTemp, unit)}",
-                        style = MaterialTheme.typography.labelMedium.copy(
-                            fontWeight = FontWeight.SemiBold,
-                            color = TextMuted,
-                            letterSpacing = 1.0.sp
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(4.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Rounded.Thermostat,
+                            contentDescription = "Feels Like",
+                            tint = PrimaryCherry,
+                            modifier = Modifier.size(16.dp)
                         )
-                    )
+                        Text(
+                            text = "Feels ${WeatherUtils.formatTemperature(apparentTemp, unit)}",
+                            style = MaterialTheme.typography.labelMedium.copy(
+                                fontWeight = FontWeight.Medium,
+                                color = TextWhite
+                            )
+                        )
+                    }
                 }
 
                 // High / Low badge
                 if (maxTemp != null && minTemp != null) {
                     Box(
                         modifier = Modifier
-                            .clip(RoundedCornerShape(12.dp))
+                            .clip(RoundedCornerShape(16.dp))
                             .background(CardDarkPlumElevated)
-                            .border(1.dp, BorderCrimson, RoundedCornerShape(12.dp))
-                            .padding(horizontal = 12.dp, vertical = 6.dp)
+                            .border(1.dp, BorderCrimson, RoundedCornerShape(16.dp))
+                        .padding(horizontal = 14.dp, vertical = 8.dp)
                     ) {
                         Text(
-                            text = "H: ${WeatherUtils.formatTemperature(maxTemp, unit)}  L: ${WeatherUtils.formatTemperature(minTemp, unit)}",
+                            text = "H: ${WeatherUtils.formatTemperature(maxTemp, unit)}  •  L: ${WeatherUtils.formatTemperature(minTemp, unit)}",
                             style = MaterialTheme.typography.labelMedium.copy(
-                                fontWeight = FontWeight.SemiBold,
-                                color = TextWhite,
-                                letterSpacing = 1.0.sp
+                                fontWeight = FontWeight.Medium,
+                                color = TextMuted
                             )
                         )
                     }

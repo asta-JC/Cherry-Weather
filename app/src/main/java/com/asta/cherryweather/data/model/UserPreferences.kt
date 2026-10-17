@@ -9,5 +9,9 @@ data class UserPreferences(
     val lastLatitude: Double? = null,
     val lastLongitude: Double? = null,
     val lastCityName: String? = null,
-    val cachedWeatherJson: String? = null
+    val cachedWeatherJson: String? = null,
+    val hasAskedLocationPermission: Boolean = false,
+    val recentCities: List<String> = emptyList(),
+    val recentCityItems: List<RecentCity> = emptyList()
 )
+

@@ -6,113 +6,113 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 
-// Techy Monospace Typography configuration for Cherry Weather
-val MonospaceFontFamily = FontFamily.Monospace
+// Modern, comfortable, high-legibility Sans-Serif Typography for Cherry Weather
+val AppFontFamily = FontFamily.SansSerif
 
 val Typography = Typography(
     displayLarge = TextStyle(
-        fontFamily = MonospaceFontFamily,
+        fontFamily = AppFontFamily,
         fontWeight = FontWeight.Bold,
-        fontSize = 64.sp,
-        lineHeight = 72.sp,
-        letterSpacing = (-1.5).sp
+        fontSize = 72.sp,
+        lineHeight = 78.sp,
+        letterSpacing = (-1.0).sp
     ),
     displayMedium = TextStyle(
-        fontFamily = MonospaceFontFamily,
+        fontFamily = AppFontFamily,
         fontWeight = FontWeight.Bold,
-        fontSize = 44.sp,
-        lineHeight = 52.sp,
+        fontSize = 48.sp,
+        lineHeight = 54.sp,
         letterSpacing = (-0.5).sp
     ),
     displaySmall = TextStyle(
-        fontFamily = MonospaceFontFamily,
+        fontFamily = AppFontFamily,
         fontWeight = FontWeight.SemiBold,
-        fontSize = 32.sp,
-        lineHeight = 40.sp,
+        fontSize = 36.sp,
+        lineHeight = 42.sp,
         letterSpacing = 0.sp
     ),
     headlineLarge = TextStyle(
-        fontFamily = MonospaceFontFamily,
+        fontFamily = AppFontFamily,
         fontWeight = FontWeight.Bold,
         fontSize = 28.sp,
-        lineHeight = 36.sp,
-        letterSpacing = 1.sp
+        lineHeight = 34.sp,
+        letterSpacing = 0.sp
     ),
     headlineMedium = TextStyle(
-        fontFamily = MonospaceFontFamily,
+        fontFamily = AppFontFamily,
         fontWeight = FontWeight.SemiBold,
         fontSize = 22.sp,
         lineHeight = 28.sp,
-        letterSpacing = 0.8.sp
+        letterSpacing = 0.15.sp
     ),
     headlineSmall = TextStyle(
-        fontFamily = MonospaceFontFamily,
+        fontFamily = AppFontFamily,
         fontWeight = FontWeight.SemiBold,
         fontSize = 18.sp,
         lineHeight = 24.sp,
-        letterSpacing = 0.5.sp
+        letterSpacing = 0.1.sp
     ),
     titleLarge = TextStyle(
-        fontFamily = MonospaceFontFamily,
-        fontWeight = FontWeight.Medium,
+        fontFamily = AppFontFamily,
+        fontWeight = FontWeight.SemiBold,
         fontSize = 20.sp,
         lineHeight = 26.sp,
-        letterSpacing = 0.5.sp
+        letterSpacing = 0.sp
     ),
     titleMedium = TextStyle(
-        fontFamily = MonospaceFontFamily,
-        fontWeight = FontWeight.Medium,
+        fontFamily = AppFontFamily,
+        fontWeight = FontWeight.SemiBold,
         fontSize = 16.sp,
         lineHeight = 22.sp,
-        letterSpacing = 0.5.sp
+        letterSpacing = 0.15.sp
     ),
     titleSmall = TextStyle(
-        fontFamily = MonospaceFontFamily,
+        fontFamily = AppFontFamily,
         fontWeight = FontWeight.Medium,
         fontSize = 14.sp,
         lineHeight = 20.sp,
-        letterSpacing = 0.5.sp
+        letterSpacing = 0.1.sp
     ),
     bodyLarge = TextStyle(
-        fontFamily = MonospaceFontFamily,
+        fontFamily = AppFontFamily,
         fontWeight = FontWeight.Normal,
         fontSize = 16.sp,
         lineHeight = 24.sp,
-        letterSpacing = 0.5.sp
+        letterSpacing = 0.25.sp
     ),
     bodyMedium = TextStyle(
-        fontFamily = MonospaceFontFamily,
+        fontFamily = AppFontFamily,
         fontWeight = FontWeight.Normal,
         fontSize = 14.sp,
         lineHeight = 20.sp,
         letterSpacing = 0.25.sp
     ),
     bodySmall = TextStyle(
-        fontFamily = MonospaceFontFamily,
+        fontFamily = AppFontFamily,
         fontWeight = FontWeight.Normal,
         fontSize = 12.sp,
         lineHeight = 16.sp,
-        letterSpacing = 0.4.sp
+        letterSpacing = 0.2.sp
     ),
     labelLarge = TextStyle(
-        fontFamily = MonospaceFontFamily,
-        fontWeight = FontWeight.Medium,
+        fontFamily = AppFontFamily,
+        fontWeight = FontWeight.SemiBold,
         fontSize = 14.sp,
         lineHeight = 20.sp,
-        letterSpacing = 1.25.sp
+        letterSpacing = 0.5.sp
     ),
     labelMedium = TextStyle(
-        fontFamily = MonospaceFontFamily,
+        fontFamily = AppFontFamily,
         fontWeight = FontWeight.Medium,
         fontSize = 12.sp,
         lineHeight = 16.sp,
-        letterSpacing = 1.5.sp
+        letterSpacing = 0.5.sp
     ),
     labelSmall = TextStyle(
-        fontFamily = MonospaceFontFamily,
-        fontWeight = FontWeight.Bold,
-        fontSize = 10.sp,
+        fontFamily = AppFontFamily,
+        fontWeight = FontWeight.Medium,
+        fontSize = 11.sp,
         lineHeight = 14.sp,
-        letterSpacing = 2.0.sp
+        letterSpacing = 0.5.sp
     )
 )

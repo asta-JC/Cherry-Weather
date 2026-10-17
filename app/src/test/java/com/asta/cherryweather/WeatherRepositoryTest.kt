@@ -120,5 +120,80 @@ class WeatherRepositoryTest {
         val prefs = UserPreferences()
         assertEquals(TemperatureUnit.CELSIUS, prefs.temperatureUnit)
         assertTrue(prefs.isAnimationEnabled)
+        assertEquals(false, prefs.hasAskedLocationPermission)
+        assertTrue(prefs.recentCities.isEmpty())
+        assertTrue(prefs.recentCityItems.isEmpty())
+    }
+
+    @Test
+    fun testRecentCitySerializationAndDeserialization() {
+        val city = com.asta.cherryweather.data.model.RecentCity(
+            name = "Paris",
+            latitude = 48.8566,
+            longitude = 2.3522,
+            country = "France"
+        )
+        val serialized = city.toSerializedString()
+        assertEquals("Paris|48.8566|2.3522|France", serialized)
+
+        val parsed = com.asta.cherryweather.data.model.RecentCity.fromSerializedString(serialized)
+        assertEquals("Paris", parsed.name)
+        assertEquals(48.8566, parsed.latitude!!, 0.0001)
+        assertEquals(2.3522, parsed.longitude!!, 0.0001)
+        assertEquals("France", parsed.country)
+
+        // Legacy format without coordinates
+        val legacy = com.asta.cherryweather.data.model.RecentCity.fromSerializedString("Tokyo")
+        assertEquals("Tokyo", legacy.name)
+        assertEquals(null, legacy.latitude)
+        assertEquals(null, legacy.longitude)
+    }
+
+    @Test
+    fun testRainIconIsCloudRainIcon() {
+        val rainCodes = listOf(51, 53, 55, 61, 63, 65, 80, 81, 82)
+        for (code in rainCodes) {
+            val icon = com.asta.cherryweather.ui.utils.WeatherUtils.getWeatherIcon(code)
+            assertEquals("Code $code should map to CloudRainIcon", com.asta.cherryweather.ui.utils.WeatherUtils.CloudRainIcon, icon)
+        }
+    }
+
+    @Test
+    fun testConvertWeatherResponseUnits() {
+        val mock = com.asta.cherryweather.ui.utils.SampleData.mockWeatherResponse
+        val converted = com.asta.cherryweather.ui.utils.WeatherUtils.convertWeatherResponse(
+            mock,
+            TemperatureUnit.FAHRENHEIT
+        )
+
+        // 22°C should convert to 71.6°F
+        val originalTemp = mock.current?.temperature2m ?: 0.0
+        val expectedF = (originalTemp * 9.0 / 5.0) + 32.0
+        assertEquals(expectedF, converted.current?.temperature2m!!, 0.1)
+
+        // Converting back to Celsius
+        val backToC = com.asta.cherryweather.ui.utils.WeatherUtils.convertWeatherResponse(
+            converted,
+            TemperatureUnit.CELSIUS
+        )
+        assertEquals(originalTemp, backToC.current?.temperature2m!!, 0.1)
+    }
+
+    @Test
+    fun testDateAndClockFormatting() {
+        val topBarDateTime = com.asta.cherryweather.ui.utils.WeatherUtils.formatCurrentDateTime("Asia/Tokyo")
+        assertNotNull(topBarDateTime)
+        assertTrue("Top bar datetime should contain bullet separator", topBarDateTime.contains("•"))
+
+        val heroDateTime = com.asta.cherryweather.ui.utils.WeatherUtils.formatHeroDateTime("Asia/Tokyo")
+        assertNotNull(heroDateTime)
+        assertTrue("Hero datetime should contain bullet separator", heroDateTime.contains("•"))
+
+        // Fallback for null timezone
+        val fallbackDateTime = com.asta.cherryweather.ui.utils.WeatherUtils.formatHeroDateTime(null)
+        assertNotNull(fallbackDateTime)
+        assertTrue("Fallback datetime should contain bullet separator", fallbackDateTime.contains("•"))
     }
 }
+
+

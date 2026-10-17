@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -31,6 +32,8 @@ import com.asta.cherryweather.data.model.TemperatureUnit
 import com.asta.cherryweather.ui.theme.BorderCrimson
 import com.asta.cherryweather.ui.theme.CardDarkPlum
 import com.asta.cherryweather.ui.theme.CardDarkPlumElevated
+import com.asta.cherryweather.ui.theme.CherryBlossom
+import com.asta.cherryweather.ui.theme.CherryBlossomSoft
 import com.asta.cherryweather.ui.theme.GradientEnd
 import com.asta.cherryweather.ui.theme.GradientStart
 import com.asta.cherryweather.ui.theme.PrimaryCherry
@@ -54,26 +57,36 @@ fun CherryDailyForecastCard(
     Surface(
         modifier = modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 8.dp),
-        color = CardDarkPlum,
-        shape = RoundedCornerShape(24.dp),
+            .padding(horizontal = 16.dp, vertical = 6.dp),
+        color = CardDarkPlum.copy(alpha = 0.90f),
+        shape = RoundedCornerShape(28.dp),
         border = androidx.compose.foundation.BorderStroke(1.dp, BorderCrimson)
     ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(20.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
+                .padding(22.dp),
+            verticalArrangement = Arrangement.spacedBy(14.dp)
         ) {
             // Header
-            Text(
-                text = "7-DAY FORECAST",
-                style = MaterialTheme.typography.labelMedium.copy(
-                    fontWeight = FontWeight.Bold,
-                    letterSpacing = 2.0.sp,
-                    color = TextMuted
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Box(
+                    modifier = Modifier
+                        .size(6.dp)
+                        .clip(CircleShape)
+                        .background(PrimaryCherry)
                 )
-            )
+                Text(
+                    text = "7-Day Forecast",
+                    style = MaterialTheme.typography.titleMedium.copy(
+                        fontWeight = FontWeight.SemiBold,
+                        color = TextWhite
+                    )
+                )
+            }
 
             dailyItems.take(7).forEachIndexed { index, item ->
                 DailyRow(
@@ -85,7 +98,7 @@ fun CherryDailyForecastCard(
 
                 if (index < dailyItems.take(7).size - 1) {
                     HorizontalDivider(
-                        color = BorderCrimson.copy(alpha = 0.5f),
+                        color = BorderCrimson.copy(alpha = 0.25f),
                         thickness = 0.8.dp
                     )
                 }
@@ -108,33 +121,34 @@ private fun DailyRow(
     val maxT = item.maxTemp ?: 0.0
 
     // Fraction range inside mini temp bar
-    val fillFraction = ((maxT - minT) / tempRange).toFloat().coerceIn(0.2f, 1f)
+    val fillFraction = ((maxT - minT) / tempRange).toFloat().coerceIn(0.25f, 1f)
 
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 6.dp),
+            .padding(vertical = 4.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
         // Day Name
         Text(
             text = dayName,
-            style = MaterialTheme.typography.titleSmall.copy(
+            style = MaterialTheme.typography.bodyLarge.copy(
                 fontWeight = if (isFirst) FontWeight.Bold else FontWeight.Medium,
-                letterSpacing = 1.0.sp,
-                color = if (isFirst) PrimaryCherry else TextWhite
+                color = if (isFirst) CherryBlossomSoft else TextWhite
             ),
-            modifier = Modifier.width(68.dp)
+            modifier = Modifier.width(64.dp)
         )
 
         // Weather Icon
         Icon(
             imageVector = icon,
-            contentDescription = "Daily Weather Icon",
-            tint = TextWhite,
-            modifier = Modifier.size(22.dp)
+            contentDescription = "Daily condition",
+            tint = if (isFirst) PrimaryCherry else CherryBlossom,
+            modifier = Modifier.size(24.dp)
         )
+
+        Spacer(modifier = Modifier.width(12.dp))
 
         // Min Temp
         Text(
@@ -143,16 +157,14 @@ private fun DailyRow(
                 fontWeight = FontWeight.Medium,
                 color = TextMuted
             ),
-            modifier = Modifier
-                .padding(horizontal = 8.dp)
-                .width(36.dp)
+            modifier = Modifier.width(36.dp)
         )
 
         // Mini Cherry Gradient Temperature Bar
         Box(
             modifier = Modifier
                 .weight(1f)
-                .height(8.dp)
+                .height(6.dp)
                 .clip(CircleShape)
                 .background(CardDarkPlumElevated)
         ) {
@@ -163,7 +175,7 @@ private fun DailyRow(
                     .clip(CircleShape)
                     .background(
                         Brush.horizontalGradient(
-                            colors = listOf(GradientStart, GradientEnd)
+                            colors = listOf(CherryBlossomSoft, GradientStart)
                         )
                     )
             )

@@ -16,29 +16,35 @@ class WeatherViewModelTest {
         val weatherResponse = SampleData.mockWeatherResponse
         val state = WeatherUiState.Success(
             weatherResponse = weatherResponse,
-            locationName = "TOKYO",
+            locationName = "Tokyo",
             temperatureUnit = TemperatureUnit.CELSIUS,
             animationsEnabled = true,
             searchResults = emptyList(),
             isSearching = false,
+            recentCities = listOf("Tokyo", "Kyoto"),
             locationPermissionGranted = true,
             gpsEnabled = true,
-            isRefreshing = false
+            isRefreshing = false,
+            hasSavedLocation = true
         )
 
-        assertEquals("TOKYO", state.locationName)
+        assertEquals("Tokyo", state.locationName)
         assertEquals(TemperatureUnit.CELSIUS, state.temperatureUnit)
         assertTrue(state.animationsEnabled)
         assertTrue(state.locationPermissionGranted)
         assertTrue(state.gpsEnabled)
+        assertTrue(state.hasSavedLocation)
+        assertEquals(2, state.recentCities.size)
 
         val updatedState = state.copy(
             temperatureUnit = TemperatureUnit.FAHRENHEIT,
-            animationsEnabled = false
+            animationsEnabled = false,
+            hasSavedLocation = false
         )
 
         assertEquals(TemperatureUnit.FAHRENHEIT, updatedState.temperatureUnit)
         assertFalse(updatedState.animationsEnabled)
+        assertFalse(updatedState.hasSavedLocation)
     }
 
     @Test

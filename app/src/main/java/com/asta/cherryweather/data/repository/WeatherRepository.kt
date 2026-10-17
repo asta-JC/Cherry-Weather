@@ -31,6 +31,16 @@ class WeatherRepository(
         NetworkClient.moshi.adapter(WeatherResponse::class.java)
     }
 
+    private val memoryForecastCache = java.util.concurrent.ConcurrentHashMap<String, WeatherResponse>()
+
+    /**
+     * Retrieves an in-memory cached forecast for given coordinates and unit if available.
+     */
+    fun getCachedForecast(latitude: Double, longitude: Double, unit: TemperatureUnit): WeatherResponse? {
+        val key = "%.4f,%.4f,%s".format(latitude, longitude, unit.code)
+        return memoryForecastCache[key]
+    }
+
     /**
      * Flow of user preferences state (unit, animations, last location, cached weather).
      */
@@ -62,9 +72,18 @@ class WeatherRepository(
             if (response.isSuccessful) {
                 val weather = response.body()
                 if (weather != null) {
+                    val key = "%.4f,%.4f,%s".format(latitude, longitude, unit.code)
+                    memoryForecastCache[key] = weather
                     val jsonString = weatherAdapter.toJson(weather)
                     userPreferencesRepository.saveCachedWeatherJson(jsonString)
                     userPreferencesRepository.saveLastLocation(latitude, longitude, cityName)
+                    if (!cityName.isNullOrBlank()) {
+                        userPreferencesRepository.saveRecentCity(
+                            cityName = cityName,
+                            latitude = latitude,
+                            longitude = longitude
+                        )
+                    }
                     return@withContext Result.success(weather)
                 }
             }
@@ -177,4 +196,17 @@ class WeatherRepository(
     suspend fun setAnimationEnabled(enabled: Boolean) {
         userPreferencesRepository.setAnimationEnabled(enabled)
     }
+
+    suspend fun setHasAskedLocationPermission(hasAsked: Boolean) {
+        userPreferencesRepository.setHasAskedLocationPermission(hasAsked)
+    }
+
+    suspend fun saveRecentCity(cityName: String, latitude: Double? = null, longitude: Double? = null, country: String? = null) {
+        userPreferencesRepository.saveRecentCity(cityName, latitude, longitude, country)
+    }
+
+    suspend fun saveRecentCity(cityName: String) {
+        userPreferencesRepository.saveRecentCity(cityName)
+    }
 }
+

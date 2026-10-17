@@ -10,8 +10,11 @@ import com.asta.cherryweather.data.model.TemperatureUnit
 import com.asta.cherryweather.data.model.UserPreferences
 import com.asta.cherryweather.data.model.WeatherResponse
 import com.asta.cherryweather.data.repository.WeatherRepository
+import com.asta.cherryweather.ui.utils.WeatherUtils
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
+
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.firstOrNull
@@ -27,9 +30,11 @@ sealed interface WeatherUiState {
         val animationsEnabled: Boolean = true,
         val searchResults: List<GeocodingResult> = emptyList(),
         val isSearching: Boolean = false,
+        val recentCities: List<String> = emptyList(),
         val locationPermissionGranted: Boolean = true,
         val gpsEnabled: Boolean = true,
-        val isRefreshing: Boolean = false
+        val isRefreshing: Boolean = false,
+        val hasSavedLocation: Boolean = false
     ) : WeatherUiState
 
     data class Error(
@@ -70,11 +75,12 @@ class WeatherViewModel(
                 }
             }
 
-            // Load cached weather first on startup for instant display
+            // Load cached weather and saved preferences first for instant display
             val cachedWeather = repository.getCachedWeather()
             val prefs = repository.userPreferencesFlow.firstOrNull() ?: UserPreferences()
             currentPreferences = prefs
 
+            val hasSaved = prefs.lastLatitude != null && prefs.lastLongitude != null
             if (cachedWeather != null) {
                 currentLat = prefs.lastLatitude
                 currentLon = prefs.lastLongitude
@@ -83,13 +89,27 @@ class WeatherViewModel(
                     locationName = prefs.lastCityName ?: "Saved Location",
                     temperatureUnit = prefs.temperatureUnit,
                     animationsEnabled = prefs.isAnimationEnabled,
+                    recentCities = prefs.recentCities,
                     locationPermissionGranted = locationService.hasLocationPermission(),
-                    gpsEnabled = locationService.isGpsEnabled()
+                    gpsEnabled = locationService.isGpsEnabled(),
+                    hasSavedLocation = hasSaved
                 )
             }
 
-            // Then refresh weather with real-time data
-            fetchWeatherForCurrentLocation()
+            // If user has a saved location, fetch fresh weather for it without nagging for GPS
+            if (hasSaved) {
+                currentLat = prefs.lastLatitude
+                currentLon = prefs.lastLongitude
+                fetchWeatherForLocation(prefs.lastLatitude!!, prefs.lastLongitude!!, prefs.lastCityName)
+            } else {
+                // First run: check if device permission already granted
+                if (locationService.hasLocationPermission()) {
+                    fetchWeatherForCurrentLocation()
+                } else {
+                    // Fallback to pleasant default city (Tokyo) without locking the UI
+                    fetchWeatherForLocation(35.6762, 139.6503, "Tokyo")
+                }
+            }
         }
     }
 
@@ -98,7 +118,9 @@ class WeatherViewModel(
         if (currentState is WeatherUiState.Success) {
             _uiState.value = currentState.copy(
                 temperatureUnit = prefs.temperatureUnit,
-                animationsEnabled = prefs.isAnimationEnabled
+                animationsEnabled = prefs.isAnimationEnabled,
+                recentCities = prefs.recentCities,
+                hasSavedLocation = prefs.lastLatitude != null && prefs.lastLongitude != null
             )
         }
     }
@@ -117,8 +139,21 @@ class WeatherViewModel(
 
             val currentState = _uiState.value
             val existingSearchResults = if (currentState is WeatherUiState.Success) currentState.searchResults else emptyList()
+            val existingRecents = currentPreferences.recentCities
+
+            // If in-memory cache has this forecast, display it immediately!
+            val memoryCached = repository.getCachedForecast(lat, lon, unit)
+            if (memoryCached != null && currentState is WeatherUiState.Success) {
+                _uiState.value = currentState.copy(
+                    weatherResponse = memoryCached,
+                    locationName = cityName ?: currentState.locationName,
+                    temperatureUnit = unit,
+                    isRefreshing = true
+                )
+            }
 
             val result = repository.getForecast(lat, lon, unit, cityName)
+
 
             result.fold(
                 onSuccess = { weatherResponse ->
@@ -134,9 +169,11 @@ class WeatherViewModel(
                         animationsEnabled = anims,
                         searchResults = existingSearchResults,
                         isSearching = false,
+                        recentCities = existingRecents,
                         locationPermissionGranted = hasPerm,
                         gpsEnabled = isGpsOn,
-                        isRefreshing = false
+                        isRefreshing = false,
+                        hasSavedLocation = true
                     )
                 },
                 onFailure = { error ->
@@ -229,7 +266,7 @@ class WeatherViewModel(
     }
 
     /**
-     * Searches cities by query string via GeocodingApiService.
+     * Searches cities by query string via GeocodingApiService with 300ms debounce.
      */
     fun searchCities(query: String) {
         searchJob?.cancel()
@@ -251,18 +288,19 @@ class WeatherViewModel(
         }
 
         searchJob = viewModelScope.launch {
+            delay(300) // 300ms debounce to prevent thrashing
             val result = repository.searchLocations(query)
-            val currentState = _uiState.value
-            if (currentState is WeatherUiState.Success) {
+            val state = _uiState.value
+            if (state is WeatherUiState.Success) {
                 result.fold(
                     onSuccess = { locations ->
-                        _uiState.value = currentState.copy(
+                        _uiState.value = state.copy(
                             searchResults = locations,
                             isSearching = false
                         )
                     },
                     onFailure = {
-                        _uiState.value = currentState.copy(
+                        _uiState.value = state.copy(
                             searchResults = emptyList(),
                             isSearching = false
                         )
@@ -273,26 +311,39 @@ class WeatherViewModel(
     }
 
     /**
-     * Selects location from search results, updates DataStore, and fetches weather.
+     * Selects location from search results, gives immediate UI feedback, and fetches weather.
      */
     fun selectCity(location: GeocodingResult) {
-        val currentState = _uiState.value
-        if (currentState is WeatherUiState.Success) {
-            _uiState.value = currentState.copy(
-                searchResults = emptyList(),
-                isSearching = false
-            )
-        }
-
         val cityName = location.displayName
         currentLat = location.latitude
         currentLon = location.longitude
+
+        val currentState = _uiState.value
+        if (currentState is WeatherUiState.Success) {
+            // Immediate optimistic feedback: update city name and start refresh spinner right away
+            _uiState.value = currentState.copy(
+                locationName = cityName,
+                searchResults = emptyList(),
+                isSearching = false,
+                isRefreshing = true
+            )
+        }
+
+        viewModelScope.launch {
+            repository.saveRecentCity(
+                cityName = cityName,
+                latitude = location.latitude,
+                longitude = location.longitude,
+                country = location.country
+            )
+        }
 
         fetchWeatherForLocation(location.latitude, location.longitude, cityName)
     }
 
     /**
-     * Toggles temperature unit (Imperial/Metric) in DataStore and updates forecast.
+     * Toggles temperature unit (Imperial/Metric) with instantaneous 0ms in-memory conversion,
+     * persisting to DataStore and syncing fresh data in the background.
      */
     fun toggleTemperatureUnit() {
         val nextUnit = if (currentPreferences.temperatureUnit == TemperatureUnit.CELSIUS) {
@@ -301,9 +352,20 @@ class WeatherViewModel(
             TemperatureUnit.CELSIUS
         }
 
+        // 1. Instantaneous 0ms UI update
+        val currentState = _uiState.value
+        if (currentState is WeatherUiState.Success) {
+            val converted = WeatherUtils.convertWeatherResponse(currentState.weatherResponse, nextUnit)
+            _uiState.value = currentState.copy(
+                weatherResponse = converted,
+                temperatureUnit = nextUnit
+            )
+        }
+        currentPreferences = currentPreferences.copy(temperatureUnit = nextUnit)
+
+        // 2. Persist & sync in background
         viewModelScope.launch {
             repository.setTemperatureUnit(nextUnit)
-            currentPreferences = currentPreferences.copy(temperatureUnit = nextUnit)
 
             val lat = currentLat ?: currentPreferences.lastLatitude
             val lon = currentLon ?: currentPreferences.lastLongitude
@@ -311,10 +373,16 @@ class WeatherViewModel(
                 ?: currentPreferences.lastCityName
 
             if (lat != null && lon != null) {
-                fetchWeatherForLocation(lat, lon, cityName)
+                repository.getForecast(lat, lon, nextUnit, cityName).onSuccess { freshWeather ->
+                    val latestState = _uiState.value
+                    if (latestState is WeatherUiState.Success && latestState.temperatureUnit == nextUnit) {
+                        _uiState.value = latestState.copy(weatherResponse = freshWeather)
+                    }
+                }
             }
         }
     }
+
 
     /**
      * Toggles canvas particle animation state.
@@ -352,6 +420,98 @@ class WeatherViewModel(
             fetchWeatherForLocation(lat, lon, cityName)
         } else {
             fetchWeatherForCurrentLocation()
+        }
+    }
+
+    /**
+     * Explicit user trigger to rescan GPS coordinates.
+     */
+    fun rescanGpsLocation(onRequestPermission: () -> Unit) {
+        if (!locationService.hasLocationPermission()) {
+            onRequestPermission()
+            return
+        }
+        if (!locationService.isGpsEnabled()) {
+            val currentState = _uiState.value
+            if (currentState is WeatherUiState.Success) {
+                _uiState.value = currentState.copy(gpsEnabled = false)
+            }
+            return
+        }
+        fetchWeatherForCurrentLocation()
+    }
+
+    /**
+     * Silently refreshes weather on returning to foreground without prompting for GPS or permissions.
+     */
+    fun refreshWeatherSilent() {
+        val lat = currentLat ?: currentPreferences.lastLatitude
+        val lon = currentLon ?: currentPreferences.lastLongitude
+        val cityName = (uiState.value as? WeatherUiState.Success)?.locationName
+            ?: currentPreferences.lastCityName
+
+        if (lat != null && lon != null) {
+            fetchWeatherForLocation(lat, lon, cityName)
+        }
+    }
+
+    /**
+     * Selects a city by name from recent searches, using cached coordinates when available
+     * for instant zero-latency loading.
+     */
+    fun selectRecentCity(cityName: String) {
+        val cachedRecent = currentPreferences.recentCityItems.firstOrNull {
+            it.name.equals(cityName.trim(), ignoreCase = true)
+        }
+        if (cachedRecent?.latitude != null && cachedRecent.longitude != null) {
+            val currentState = _uiState.value
+            if (currentState is WeatherUiState.Success) {
+                _uiState.value = currentState.copy(
+                    locationName = cachedRecent.name,
+                    searchResults = emptyList(),
+                    isSearching = false,
+                    isRefreshing = true
+                )
+            }
+            currentLat = cachedRecent.latitude
+            currentLon = cachedRecent.longitude
+            fetchWeatherForLocation(cachedRecent.latitude, cachedRecent.longitude, cachedRecent.name)
+            return
+        }
+
+        // Fallback for legacy searches without cached coordinates
+        val currentState = _uiState.value
+        if (currentState is WeatherUiState.Success) {
+            _uiState.value = currentState.copy(
+                locationName = cityName,
+                isRefreshing = true
+            )
+        }
+        viewModelScope.launch {
+            val result = repository.searchLocations(cityName)
+            result.fold(
+                onSuccess = { results ->
+                    val match = results.firstOrNull()
+                    if (match != null) {
+                        selectCity(match)
+                    } else {
+                        searchCities(cityName)
+                    }
+                },
+                onFailure = {
+                    searchCities(cityName)
+                }
+            )
+        }
+    }
+
+
+    /**
+     * Dismisses permission banner and prevents re-prompting.
+     */
+    fun dismissPermissionBanner() {
+        viewModelScope.launch {
+            repository.setHasAskedLocationPermission(true)
         }
     }
 }

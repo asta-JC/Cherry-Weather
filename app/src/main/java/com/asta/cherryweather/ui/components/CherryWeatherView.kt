@@ -68,13 +68,18 @@ fun CherryWeatherView(
     unit: TemperatureUnit,
     animationsEnabled: Boolean,
     hasLocationPermission: Boolean,
+    hasSavedLocation: Boolean = true,
     isGpsDisabled: Boolean,
     searchResults: List<GeocodingResult>,
+    recentCities: List<String> = emptyList(),
     isSearchingLocations: Boolean,
     onRequestLocationPermission: () -> Unit,
+    onRescanLocation: () -> Unit = {},
     onManualSearchSubmit: (String) -> Unit,
     onSearchQueryChange: (String) -> Unit,
     onLocationSelected: (GeocodingResult) -> Unit,
+    onRecentCitySelected: (String) -> Unit = {},
+    onDismissPermissionBanner: () -> Unit = {},
     onUnitToggle: () -> Unit,
     onAnimationToggle: () -> Unit,
     onRefresh: () -> Unit = {},
@@ -84,6 +89,7 @@ fun CherryWeatherView(
 ) {
     var isSearchDialogOpen by remember { mutableStateOf(false) }
     var searchQuery by remember { mutableStateOf("") }
+    var isPermissionBannerDismissed by remember { mutableStateOf(false) }
 
     val currentWeather = weatherResponse?.current
     val hourlyItems = remember(weatherResponse) {
@@ -132,14 +138,9 @@ fun CherryWeatherView(
                     modifier = Modifier
                         .fillMaxSize()
                         .verticalScroll(rememberScrollState())
-                        .padding(top = 16.dp)
+                        .padding(top = 10.dp)
                 ) {
-                    // Top Branding Header
-                    CherryHeader()
-
-                    Spacer(modifier = Modifier.height(8.dp))
-
-                    // Navigation / Controls Bar
+                    // Unified Top Navigation & Location Controls
                     CherryTopBar(
                         cityName = cityName,
                         unit = unit,
@@ -147,20 +148,29 @@ fun CherryWeatherView(
                         onSearchClick = {
                             isSearchDialogOpen = true
                         },
+                        onRescanLocation = onRescanLocation,
                         onUnitToggle = onUnitToggle,
-                        onAnimationToggle = onAnimationToggle
+                        onAnimationToggle = onAnimationToggle,
+                        timezone = weatherResponse?.timezone
                     )
 
-                    Spacer(modifier = Modifier.height(8.dp))
+                    Spacer(modifier = Modifier.height(4.dp))
 
-                    // Location Permission or GPS Warning Banner if needed
-                    if (!hasLocationPermission || isGpsDisabled) {
+                    // Location Permission or GPS Warning Banner (only if GPS disabled or no saved location and not dismissed)
+                    val showBanner = !isPermissionBannerDismissed && (
+                        (isGpsDisabled && hasLocationPermission) ||
+                        (!hasLocationPermission && !hasSavedLocation)
+                    )
+
+                    if (showBanner) {
                         CherryLocationPermissionBanner(
                             onRequestPermission = onRequestLocationPermission,
-                            onManualSearchSubmit = { query ->
-                                onManualSearchSubmit(query)
-                                searchQuery = query
+                            onManualSearchSubmit = {
                                 isSearchDialogOpen = true
+                            },
+                            onDismiss = {
+                                isPermissionBannerDismissed = true
+                                onDismissPermissionBanner()
                             },
                             isGpsDisabled = isGpsDisabled,
                             onOpenGpsSettings = onOpenGpsSettings
@@ -171,19 +181,22 @@ fun CherryWeatherView(
                         // Loading Shimmer Skeleton
                         CherryLoadingSkeleton()
                     } else if (errorMessage != null && weatherResponse == null) {
-                        // Error Card
+                        // Friendly Error Card
                         ErrorStateCard(
                             message = errorMessage,
                             onRetry = onRetry
                         )
                     } else {
-                        // Main Weather Metrics & Cards
+                        // Main Weather Hero Section
                         CherryHeroSection(
                             currentWeather = currentWeather,
                             todayDaily = todayDaily,
-                            unit = unit
+                            unit = unit,
+                            timezone = weatherResponse?.timezone
                         )
 
+
+                        // 24-Hour Forecast
                         if (hourlyItems.isNotEmpty()) {
                             CherryHourlyForecast(
                                 hourlyItems = hourlyItems,
@@ -191,6 +204,7 @@ fun CherryWeatherView(
                             )
                         }
 
+                        // 7-Day Forecast Card
                         if (dailyItems.isNotEmpty()) {
                             CherryDailyForecastCard(
                                 dailyItems = dailyItems,
@@ -198,6 +212,7 @@ fun CherryWeatherView(
                             )
                         }
 
+                        // Weather Highlights Grid
                         CherryDetailsGrid(
                             currentWeather = currentWeather,
                             todayDaily = todayDaily,
@@ -209,7 +224,7 @@ fun CherryWeatherView(
                 }
             }
 
-            // 3. Search Dialog Modal
+            // 3. Search & Location Selection Dialog Modal
             if (isSearchDialogOpen) {
                 CherrySearchDialog(
                     query = searchQuery,
@@ -218,11 +233,17 @@ fun CherryWeatherView(
                         onSearchQueryChange(newQuery)
                     },
                     searchResults = searchResults,
+                    recentCities = recentCities,
                     isSearching = isSearchingLocations,
                     onLocationSelected = { location ->
                         onLocationSelected(location)
                         isSearchDialogOpen = false
                     },
+                    onRecentCityClick = { recentCity ->
+                        onRecentCitySelected(recentCity)
+                        isSearchDialogOpen = false
+                    },
+                    onUseCurrentLocation = onRescanLocation,
                     onDismiss = {
                         isSearchDialogOpen = false
                     }
@@ -242,7 +263,7 @@ private fun ErrorStateCard(
             .fillMaxWidth()
             .padding(16.dp),
         color = CardDarkPlum,
-        shape = RoundedCornerShape(24.dp),
+        shape = RoundedCornerShape(26.dp),
         border = androidx.compose.foundation.BorderStroke(1.dp, BorderCrimson)
     ) {
         Column(
@@ -273,11 +294,10 @@ private fun ErrorStateCard(
             }
 
             Text(
-                text = "WEATHER UNFULFILLED",
+                text = "Unable to Load Forecast",
                 style = MaterialTheme.typography.titleMedium.copy(
                     fontWeight = FontWeight.Bold,
-                    letterSpacing = 1.5.sp,
-                    color = PrimaryCherry
+                    color = TextWhite
                 ),
                 textAlign = TextAlign.Center
             )
@@ -312,10 +332,9 @@ private fun ErrorStateCard(
                         modifier = Modifier.size(18.dp)
                     )
                     Text(
-                        text = "RETRY CONNECTION",
+                        text = "Retry Connection",
                         style = MaterialTheme.typography.labelLarge.copy(
-                            fontWeight = FontWeight.Bold,
-                            letterSpacing = 1.2.sp
+                            fontWeight = FontWeight.SemiBold
                         )
                     )
                 }

@@ -1,7 +1,6 @@
 package com.asta.cherryweather.ui.components
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
@@ -18,7 +17,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.asta.cherryweather.ui.theme.CherryGlow
 import com.asta.cherryweather.ui.theme.PrimaryCherry
 import com.asta.cherryweather.ui.theme.TextMuted
 
@@ -36,18 +34,17 @@ fun CherryFooter(
         Box(
             modifier = Modifier
                 .padding(end = 8.dp)
-                .size(8.dp)
+                .size(6.dp)
                 .clip(CircleShape)
                 .background(PrimaryCherry)
-                .border(1.5.dp, CherryGlow, CircleShape)
         )
 
         Text(
-            text = "CHERRY WEATHER // ASTA V1.0",
-            style = MaterialTheme.typography.labelSmall.copy(
-                fontWeight = FontWeight.Bold,
-                letterSpacing = 2.0.sp,
-                color = TextMuted
+            text = "Cherry Weather  •  Cherry Edition 🍒",
+            style = MaterialTheme.typography.bodySmall.copy(
+                fontWeight = FontWeight.Medium,
+                color = TextMuted,
+                fontSize = 12.sp
             )
         )
     }

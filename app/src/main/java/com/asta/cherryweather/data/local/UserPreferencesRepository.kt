@@ -9,6 +9,7 @@ import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.emptyPreferences
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
+import com.asta.cherryweather.data.model.RecentCity
 import com.asta.cherryweather.data.model.TemperatureUnit
 import com.asta.cherryweather.data.model.UserPreferences
 import kotlinx.coroutines.flow.Flow
@@ -32,6 +33,8 @@ class UserPreferencesRepository(private val dataStore: DataStore<Preferences>) {
         val LAST_LONGITUDE = doublePreferencesKey("last_longitude")
         val LAST_CITY_NAME = stringPreferencesKey("last_city_name")
         val CACHED_WEATHER_JSON = stringPreferencesKey("cached_weather_json")
+        val HAS_ASKED_LOCATION_PERMISSION = booleanPreferencesKey("has_asked_location_permission")
+        val RECENT_CITIES_CSV = stringPreferencesKey("recent_cities_csv")
     }
 
     val userPreferencesFlow: Flow<UserPreferences> = dataStore.data
@@ -50,6 +53,15 @@ class UserPreferencesRepository(private val dataStore: DataStore<Preferences>) {
             val lastLongitude = preferences[PreferenceKeys.LAST_LONGITUDE]
             val lastCityName = preferences[PreferenceKeys.LAST_CITY_NAME]
             val cachedWeatherJson = preferences[PreferenceKeys.CACHED_WEATHER_JSON]
+            val hasAskedLocation = preferences[PreferenceKeys.HAS_ASKED_LOCATION_PERMISSION] ?: false
+            val recentCitiesRaw = preferences[PreferenceKeys.RECENT_CITIES_CSV]
+            val recentCityItems = recentCitiesRaw
+                ?.split(";;")
+                ?.map { it.trim() }
+                ?.filter { it.isNotEmpty() }
+                ?.map { RecentCity.fromSerializedString(it) }
+                ?: emptyList()
+            val recentCities = recentCityItems.map { it.name }
 
             UserPreferences(
                 temperatureUnit = temperatureUnit,
@@ -57,7 +69,10 @@ class UserPreferencesRepository(private val dataStore: DataStore<Preferences>) {
                 lastLatitude = lastLatitude,
                 lastLongitude = lastLongitude,
                 lastCityName = lastCityName,
-                cachedWeatherJson = cachedWeatherJson
+                cachedWeatherJson = cachedWeatherJson,
+                hasAskedLocationPermission = hasAskedLocation,
+                recentCities = recentCities,
+                recentCityItems = recentCityItems
             )
         }
 
@@ -88,6 +103,38 @@ class UserPreferencesRepository(private val dataStore: DataStore<Preferences>) {
             preferences[PreferenceKeys.CACHED_WEATHER_JSON] = json
         }
     }
+
+    suspend fun setHasAskedLocationPermission(hasAsked: Boolean) {
+        dataStore.edit { preferences ->
+            preferences[PreferenceKeys.HAS_ASKED_LOCATION_PERMISSION] = hasAsked
+        }
+    }
+
+    suspend fun saveRecentCity(
+        cityName: String,
+        latitude: Double? = null,
+        longitude: Double? = null,
+        country: String? = null
+    ) {
+        if (cityName.isBlank()) return
+        val newItem = RecentCity(cityName.trim(), latitude, longitude, country)
+        dataStore.edit { preferences ->
+            val existing = preferences[PreferenceKeys.RECENT_CITIES_CSV]
+                ?.split(";;")
+                ?.map { it.trim() }
+                ?.filter { it.isNotEmpty() }
+                ?.map { RecentCity.fromSerializedString(it) }
+                ?.filter { !it.name.equals(cityName.trim(), ignoreCase = true) }
+                ?: emptyList()
+            val updated = listOf(newItem) + existing.take(4)
+            preferences[PreferenceKeys.RECENT_CITIES_CSV] = updated.joinToString(";;") { it.toSerializedString() }
+        }
+    }
+
+    suspend fun saveRecentCity(cityName: String) {
+        saveRecentCity(cityName, null, null, null)
+    }
+
 
     suspend fun clearCache() {
         dataStore.edit { preferences ->
