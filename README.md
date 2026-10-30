@@ -8,6 +8,7 @@
     <img src="https://img.shields.io/badge/Android-7.0%2B-698269?style=flat-square" alt="Android 7.0 and later" />
     <img src="https://img.shields.io/badge/UI-Jetpack%20Compose-78616B?style=flat-square" alt="Jetpack Compose UI" />
   </p>
+  <p><a href="https://github.com/asta-JC/Cherry-Weather/releases/download/v1.1/Cherry-Weather_v1.1.apk">Download APK</a> · <a href="https://github.com/asta-JC/Cherry-Weather/releases/tag/v1.1">Release notes</a></p>
   <p>
     <a href="#screenshots">Screenshots</a> ·
     <a href="#features">Features</a> ·
@@ -55,6 +56,12 @@ Captured from the production app on a physical Samsung Galaxy S22 Ultra in Light
 | Known limit | Existing `java.time` calls lack desugaring for API 24–25; Android 7 date/time compatibility remains unresolved. Physical-device checks used a newer Android version. |
 
 ## Getting started
+
+### Download
+
+Install [Cherry-Weather_v1.1.apk](https://github.com/asta-JC/Cherry-Weather/releases/download/v1.1/Cherry-Weather_v1.1.apk) from [GitHub Releases](https://github.com/asta-JC/Cherry-Weather/releases/tag/v1.1).
+
+This APK is **debug/test-signed** with the existing Android Debug certificate, not production signing. Version: **1.1**, versionCode **2**, package `com.asta.cherryweather`. Verify the download with [SHA256SUMS.txt](https://github.com/asta-JC/Cherry-Weather/releases/download/v1.1/SHA256SUMS.txt).
 
 ### Requirements
 
