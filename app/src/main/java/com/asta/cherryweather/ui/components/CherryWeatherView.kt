@@ -13,7 +13,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.systemBars
+import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -30,16 +30,15 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
-import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -47,15 +46,6 @@ import androidx.compose.ui.unit.sp
 import com.asta.cherryweather.data.model.GeocodingResult
 import com.asta.cherryweather.data.model.TemperatureUnit
 import com.asta.cherryweather.data.model.WeatherResponse
-import com.asta.cherryweather.ui.components.canvas.CherryWeatherCanvasAnimation
-import com.asta.cherryweather.ui.theme.BackgroundDark
-import com.asta.cherryweather.ui.theme.BorderCrimson
-import com.asta.cherryweather.ui.theme.CardDarkPlum
-import com.asta.cherryweather.ui.theme.GradientEnd
-import com.asta.cherryweather.ui.theme.GradientStart
-import com.asta.cherryweather.ui.theme.PrimaryCherry
-import com.asta.cherryweather.ui.theme.TextMuted
-import com.asta.cherryweather.ui.theme.TextWhite
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -66,7 +56,7 @@ fun CherryWeatherView(
     isRefreshing: Boolean = false,
     errorMessage: String? = null,
     unit: TemperatureUnit,
-    animationsEnabled: Boolean,
+
     hasLocationPermission: Boolean,
     hasSavedLocation: Boolean = true,
     isGpsDisabled: Boolean,
@@ -81,15 +71,16 @@ fun CherryWeatherView(
     onRecentCitySelected: (String) -> Unit = {},
     onDismissPermissionBanner: () -> Unit = {},
     onUnitToggle: () -> Unit,
-    onAnimationToggle: () -> Unit,
+
     onRefresh: () -> Unit = {},
     onRetry: () -> Unit = {},
     modifier: Modifier = Modifier,
+    onSettingsClick: () -> Unit = {},
     onOpenGpsSettings: (() -> Unit)? = null
 ) {
-    var isSearchDialogOpen by remember { mutableStateOf(false) }
-    var searchQuery by remember { mutableStateOf("") }
-    var isPermissionBannerDismissed by remember { mutableStateOf(false) }
+    var isSearchDialogOpen by rememberSaveable { mutableStateOf(false) }
+    var searchQuery by rememberSaveable { mutableStateOf("") }
+    var isPermissionBannerDismissed by rememberSaveable { mutableStateOf(false) }
 
     val currentWeather = weatherResponse?.current
     val hourlyItems = remember(weatherResponse) {
@@ -105,7 +96,7 @@ fun CherryWeatherView(
 
     Scaffold(
         modifier = modifier.fillMaxSize(),
-        containerColor = BackgroundDark,
+        containerColor = MaterialTheme.colorScheme.background,
         contentWindowInsets = WindowInsets(0, 0, 0, 0)
     ) { innerPadding ->
         Box(
@@ -113,26 +104,15 @@ fun CherryWeatherView(
                 .fillMaxSize()
                 .padding(innerPadding)
         ) {
-            // 1. Background Custom Canvas Particle Animation
-            CherryWeatherCanvasAnimation(
-                weatherCode = weatherCode,
-                isDay = isDay,
-                animationsEnabled = animationsEnabled,
-                modifier = Modifier.fillMaxSize()
-            )
-
             // 2. Scrollable Weather Content Overlay with PullToRefresh
-            val systemBarInsets = WindowInsets.systemBars.asPaddingValues()
+            val systemBarInsets = WindowInsets.safeDrawing.asPaddingValues()
 
             PullToRefreshBox(
                 isRefreshing = isRefreshing,
                 onRefresh = onRefresh,
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(
-                        top = systemBarInsets.calculateTopPadding(),
-                        bottom = systemBarInsets.calculateBottomPadding()
-                    )
+                    .padding(systemBarInsets)
             ) {
                 Column(
                     modifier = Modifier
@@ -140,17 +120,19 @@ fun CherryWeatherView(
                         .verticalScroll(rememberScrollState())
                         .padding(top = 10.dp)
                 ) {
+                    CherryHeader(onSettingsClick = onSettingsClick)
+
                     // Unified Top Navigation & Location Controls
                     CherryTopBar(
                         cityName = cityName,
                         unit = unit,
-                        animationsEnabled = animationsEnabled,
+
                         onSearchClick = {
                             isSearchDialogOpen = true
                         },
                         onRescanLocation = onRescanLocation,
                         onUnitToggle = onUnitToggle,
-                        onAnimationToggle = onAnimationToggle,
+
                         timezone = weatherResponse?.timezone
                     )
 
@@ -262,9 +244,9 @@ private fun ErrorStateCard(
         modifier = Modifier
             .fillMaxWidth()
             .padding(16.dp),
-        color = CardDarkPlum,
-        shape = RoundedCornerShape(26.dp),
-        border = androidx.compose.foundation.BorderStroke(1.dp, BorderCrimson)
+        color = MaterialTheme.colorScheme.surface,
+        shape = RoundedCornerShape(20.dp),
+        border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
     ) {
         Column(
             modifier = Modifier
@@ -276,19 +258,16 @@ private fun ErrorStateCard(
             Box(
                 modifier = Modifier
                     .size(56.dp)
-                    .shadow(12.dp, CircleShape, spotColor = PrimaryCherry, ambientColor = PrimaryCherry)
                     .clip(CircleShape)
                     .background(
-                        Brush.linearGradient(
-                            colors = listOf(GradientStart, GradientEnd)
-                        )
+                        MaterialTheme.colorScheme.primaryContainer
                     ),
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
                     imageVector = Icons.Rounded.CloudOff,
                     contentDescription = "Error Icon",
-                    tint = TextWhite,
+                    tint = MaterialTheme.colorScheme.onSurface,
                     modifier = Modifier.size(28.dp)
                 )
             }
@@ -297,7 +276,7 @@ private fun ErrorStateCard(
                 text = "Unable to Load Forecast",
                 style = MaterialTheme.typography.titleMedium.copy(
                     fontWeight = FontWeight.Bold,
-                    color = TextWhite
+                    color = MaterialTheme.colorScheme.onSurface
                 ),
                 textAlign = TextAlign.Center
             )
@@ -305,7 +284,7 @@ private fun ErrorStateCard(
             Text(
                 text = message,
                 style = MaterialTheme.typography.bodyMedium.copy(
-                    color = TextMuted,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                     lineHeight = 20.sp
                 ),
                 textAlign = TextAlign.Center
@@ -318,8 +297,8 @@ private fun ErrorStateCard(
                     .height(48.dp),
                 shape = RoundedCornerShape(16.dp),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = PrimaryCherry,
-                    contentColor = TextWhite
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    contentColor = MaterialTheme.colorScheme.onPrimary
                 )
             ) {
                 Row(

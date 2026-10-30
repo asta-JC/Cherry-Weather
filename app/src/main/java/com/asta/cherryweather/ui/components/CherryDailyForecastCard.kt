@@ -26,19 +26,8 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.asta.cherryweather.data.model.DailyItem
 import com.asta.cherryweather.data.model.TemperatureUnit
-import com.asta.cherryweather.ui.theme.BorderCrimson
-import com.asta.cherryweather.ui.theme.CardDarkPlum
-import com.asta.cherryweather.ui.theme.CardDarkPlumElevated
-import com.asta.cherryweather.ui.theme.CherryBlossom
-import com.asta.cherryweather.ui.theme.CherryBlossomSoft
-import com.asta.cherryweather.ui.theme.GradientEnd
-import com.asta.cherryweather.ui.theme.GradientStart
-import com.asta.cherryweather.ui.theme.PrimaryCherry
-import com.asta.cherryweather.ui.theme.TextMuted
-import com.asta.cherryweather.ui.theme.TextWhite
 import com.asta.cherryweather.ui.utils.WeatherUtils
 
 @Composable
@@ -58,9 +47,9 @@ fun CherryDailyForecastCard(
         modifier = modifier
             .fillMaxWidth()
             .padding(horizontal = 16.dp, vertical = 6.dp),
-        color = CardDarkPlum.copy(alpha = 0.90f),
-        shape = RoundedCornerShape(28.dp),
-        border = androidx.compose.foundation.BorderStroke(1.dp, BorderCrimson)
+        color = MaterialTheme.colorScheme.surface.copy(alpha = 0.90f),
+        shape = RoundedCornerShape(20.dp),
+        border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
     ) {
         Column(
             modifier = Modifier
@@ -77,13 +66,13 @@ fun CherryDailyForecastCard(
                     modifier = Modifier
                         .size(6.dp)
                         .clip(CircleShape)
-                        .background(PrimaryCherry)
+                        .background(MaterialTheme.colorScheme.primary)
                 )
                 Text(
                     text = "7-Day Forecast",
                     style = MaterialTheme.typography.titleMedium.copy(
                         fontWeight = FontWeight.SemiBold,
-                        color = TextWhite
+                        color = MaterialTheme.colorScheme.onSurface
                     )
                 )
             }
@@ -98,7 +87,7 @@ fun CherryDailyForecastCard(
 
                 if (index < dailyItems.take(7).size - 1) {
                     HorizontalDivider(
-                        color = BorderCrimson.copy(alpha = 0.25f),
+                        color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.25f),
                         thickness = 0.8.dp
                     )
                 }
@@ -135,7 +124,7 @@ private fun DailyRow(
             text = dayName,
             style = MaterialTheme.typography.bodyLarge.copy(
                 fontWeight = if (isFirst) FontWeight.Bold else FontWeight.Medium,
-                color = if (isFirst) CherryBlossomSoft else TextWhite
+                color = if (isFirst) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurface
             ),
             modifier = Modifier.width(64.dp)
         )
@@ -144,7 +133,7 @@ private fun DailyRow(
         Icon(
             imageVector = icon,
             contentDescription = "Daily condition",
-            tint = if (isFirst) PrimaryCherry else CherryBlossom,
+            tint = if (isFirst) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.primary,
             modifier = Modifier.size(24.dp)
         )
 
@@ -155,7 +144,7 @@ private fun DailyRow(
             text = WeatherUtils.formatTemperature(minT, unit),
             style = MaterialTheme.typography.bodyMedium.copy(
                 fontWeight = FontWeight.Medium,
-                color = TextMuted
+                color = MaterialTheme.colorScheme.onSurfaceVariant
             ),
             modifier = Modifier.width(36.dp)
         )
@@ -166,7 +155,7 @@ private fun DailyRow(
                 .weight(1f)
                 .height(6.dp)
                 .clip(CircleShape)
-                .background(CardDarkPlumElevated)
+                .background(MaterialTheme.colorScheme.surfaceVariant)
         ) {
             Box(
                 modifier = Modifier
@@ -175,7 +164,7 @@ private fun DailyRow(
                     .clip(CircleShape)
                     .background(
                         Brush.horizontalGradient(
-                            colors = listOf(CherryBlossomSoft, GradientStart)
+                            colors = listOf(MaterialTheme.colorScheme.onPrimaryContainer, MaterialTheme.colorScheme.primaryContainer)
                         )
                     )
             )
@@ -186,7 +175,7 @@ private fun DailyRow(
             text = WeatherUtils.formatTemperature(maxT, unit),
             style = MaterialTheme.typography.bodyMedium.copy(
                 fontWeight = FontWeight.Bold,
-                color = TextWhite
+                color = MaterialTheme.colorScheme.onSurface
             ),
             modifier = Modifier
                 .padding(start = 12.dp)

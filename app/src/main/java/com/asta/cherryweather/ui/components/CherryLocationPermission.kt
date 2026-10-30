@@ -7,7 +7,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
@@ -30,21 +30,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.asta.cherryweather.ui.theme.BorderCrimson
-import com.asta.cherryweather.ui.theme.CardDarkPlum
-import com.asta.cherryweather.ui.theme.CardDarkPlumElevated
-import com.asta.cherryweather.ui.theme.CherryBlossom
-import com.asta.cherryweather.ui.theme.GradientEnd
-import com.asta.cherryweather.ui.theme.GradientStart
-import com.asta.cherryweather.ui.theme.PrimaryCherry
-import com.asta.cherryweather.ui.theme.TextMuted
-import com.asta.cherryweather.ui.theme.TextWhite
 
 @Composable
 fun CherryLocationPermissionBanner(
@@ -59,9 +48,9 @@ fun CherryLocationPermissionBanner(
         modifier = modifier
             .fillMaxWidth()
             .padding(horizontal = 16.dp, vertical = 6.dp),
-        color = CardDarkPlum.copy(alpha = 0.95f),
-        shape = RoundedCornerShape(26.dp),
-        border = androidx.compose.foundation.BorderStroke(1.dp, BorderCrimson)
+        color = MaterialTheme.colorScheme.surface.copy(alpha = 0.95f),
+        shape = RoundedCornerShape(20.dp),
+        border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
     ) {
         Column(
             modifier = Modifier
@@ -79,19 +68,16 @@ fun CherryLocationPermissionBanner(
                 Box(
                     modifier = Modifier
                         .size(46.dp)
-                        .shadow(10.dp, CircleShape, spotColor = PrimaryCherry, ambientColor = PrimaryCherry)
                         .clip(CircleShape)
                         .background(
-                            Brush.linearGradient(
-                                colors = listOf(GradientStart, GradientEnd)
-                            )
+                            MaterialTheme.colorScheme.primaryContainer
                         ),
                     contentAlignment = Alignment.Center
                 ) {
                     Icon(
                         imageVector = if (isGpsDisabled) Icons.Rounded.GpsOff else Icons.Rounded.LocationOn,
                         contentDescription = "Location",
-                        tint = TextWhite,
+                        tint = MaterialTheme.colorScheme.onSurface,
                         modifier = Modifier.size(24.dp)
                     )
                 }
@@ -101,12 +87,12 @@ fun CherryLocationPermissionBanner(
                     modifier = Modifier
                         .size(32.dp)
                         .clip(CircleShape)
-                        .background(CardDarkPlumElevated)
+                        .background(MaterialTheme.colorScheme.surfaceVariant)
                 ) {
                     Icon(
                         imageVector = Icons.Rounded.Close,
                         contentDescription = "Dismiss",
-                        tint = TextMuted,
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.size(16.dp)
                     )
                 }
@@ -121,7 +107,7 @@ fun CherryLocationPermissionBanner(
                     text = if (isGpsDisabled) "Device GPS is Disabled" else "Discover Your Local Weather",
                     style = MaterialTheme.typography.titleMedium.copy(
                         fontWeight = FontWeight.Bold,
-                        color = TextWhite
+                        color = MaterialTheme.colorScheme.onSurface
                     ),
                     textAlign = TextAlign.Center
                 )
@@ -133,28 +119,28 @@ fun CherryLocationPermissionBanner(
                         "Allow location access once so Cherry Weather can save your local coordinates and display accurate forecasts."
                     },
                     style = MaterialTheme.typography.bodyMedium.copy(
-                        color = TextMuted,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                         lineHeight = 20.sp
                     ),
                     textAlign = TextAlign.Center
                 )
             }
 
-            // Actions
-            Row(
+            // Stack labeled actions so larger text keeps its full width.
+            Column(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(10.dp)
+                verticalArrangement = Arrangement.spacedBy(10.dp)
             ) {
                 if (isGpsDisabled && onOpenGpsSettings != null) {
                     Button(
                         onClick = onOpenGpsSettings,
                         modifier = Modifier
-                            .weight(1f)
-                            .height(46.dp),
+                            .fillMaxWidth()
+                            .heightIn(min = 48.dp),
                         shape = RoundedCornerShape(16.dp),
                         colors = ButtonDefaults.buttonColors(
-                            containerColor = PrimaryCherry,
-                            contentColor = TextWhite
+                            containerColor = MaterialTheme.colorScheme.primary,
+                            contentColor = MaterialTheme.colorScheme.onPrimary
                         )
                     ) {
                         Row(
@@ -178,12 +164,12 @@ fun CherryLocationPermissionBanner(
                     Button(
                         onClick = onRequestPermission,
                         modifier = Modifier
-                            .weight(1f)
-                            .height(46.dp),
+                            .fillMaxWidth()
+                            .heightIn(min = 48.dp),
                         shape = RoundedCornerShape(16.dp),
                         colors = ButtonDefaults.buttonColors(
-                            containerColor = PrimaryCherry,
-                            contentColor = TextWhite
+                            containerColor = MaterialTheme.colorScheme.primary,
+                            contentColor = MaterialTheme.colorScheme.onPrimary
                         )
                     ) {
                         Row(
@@ -196,7 +182,7 @@ fun CherryLocationPermissionBanner(
                                 modifier = Modifier.size(16.dp)
                             )
                             Text(
-                                text = "Allow Location",
+                                text = "Allow location",
                                 style = MaterialTheme.typography.labelLarge.copy(
                                     fontWeight = FontWeight.SemiBold
                                 )
@@ -208,12 +194,12 @@ fun CherryLocationPermissionBanner(
                 OutlinedButton(
                     onClick = onManualSearchSubmit,
                     modifier = Modifier
-                        .weight(1f)
-                        .height(46.dp),
+                        .fillMaxWidth()
+                        .heightIn(min = 48.dp),
                     shape = RoundedCornerShape(16.dp),
-                    border = androidx.compose.foundation.BorderStroke(1.dp, BorderCrimson),
+                    border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
                     colors = ButtonDefaults.outlinedButtonColors(
-                        contentColor = CherryBlossom
+                        contentColor = MaterialTheme.colorScheme.primary
                     )
                 ) {
                     Row(
@@ -226,7 +212,7 @@ fun CherryLocationPermissionBanner(
                             modifier = Modifier.size(16.dp)
                         )
                         Text(
-                            text = "Search City",
+                            text = "Search city",
                             style = MaterialTheme.typography.labelLarge.copy(
                                 fontWeight = FontWeight.SemiBold
                             )

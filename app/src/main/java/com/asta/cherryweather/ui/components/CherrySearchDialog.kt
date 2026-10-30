@@ -1,5 +1,7 @@
 package com.asta.cherryweather.ui.components
 
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -9,7 +11,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
@@ -43,17 +44,8 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import com.asta.cherryweather.data.model.GeocodingResult
-import com.asta.cherryweather.ui.theme.BorderCrimson
-import com.asta.cherryweather.ui.theme.CardDarkPlum
-import com.asta.cherryweather.ui.theme.CardDarkPlumElevated
-import com.asta.cherryweather.ui.theme.CherryBlossom
-import com.asta.cherryweather.ui.theme.CherryBlossomSoft
-import com.asta.cherryweather.ui.theme.PrimaryCherry
-import com.asta.cherryweather.ui.theme.TextMuted
-import com.asta.cherryweather.ui.theme.TextWhite
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
@@ -73,14 +65,15 @@ fun CherrySearchDialog(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(4.dp),
-            color = CardDarkPlum,
-            shape = RoundedCornerShape(28.dp),
-            border = androidx.compose.foundation.BorderStroke(1.dp, BorderCrimson)
+            color = MaterialTheme.colorScheme.surface,
+            shape = RoundedCornerShape(20.dp),
+            border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
         ) {
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(22.dp),
+                    .verticalScroll(rememberScrollState())
+                    .padding(20.dp),
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
                 // Header with title and close button
@@ -90,6 +83,7 @@ fun CherrySearchDialog(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Row(
+                        modifier = Modifier.weight(1f),
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
@@ -97,13 +91,13 @@ fun CherrySearchDialog(
                             modifier = Modifier
                                 .size(8.dp)
                                 .clip(CircleShape)
-                                .background(PrimaryCherry)
+                                .background(MaterialTheme.colorScheme.primary)
                         )
                         Text(
-                            text = "Change Location",
+                            text = "Change location",
                             style = MaterialTheme.typography.titleLarge.copy(
                                 fontWeight = FontWeight.Bold,
-                                color = TextWhite
+                                color = MaterialTheme.colorScheme.onSurface
                             )
                         )
                     }
@@ -111,21 +105,21 @@ fun CherrySearchDialog(
                     IconButton(
                         onClick = onDismiss,
                         modifier = Modifier
-                            .size(34.dp)
+                            .size(48.dp)
                             .clip(CircleShape)
-                            .background(CardDarkPlumElevated)
-                            .border(1.dp, BorderCrimson, CircleShape)
+                            .background(MaterialTheme.colorScheme.surfaceVariant)
+                            .border(1.dp, MaterialTheme.colorScheme.outlineVariant, CircleShape)
                     ) {
                         Icon(
                             imageVector = Icons.Rounded.Close,
                             contentDescription = "Close",
-                            tint = TextWhite,
+                            tint = MaterialTheme.colorScheme.onSurface,
                             modifier = Modifier.size(18.dp)
                         )
                     }
                 }
 
-                // 1-Tap "Use My Current Location" GPS Button
+                // 1-Tap "Use current location" GPS Button
                 Button(
                     onClick = {
                         onUseCurrentLocation()
@@ -133,13 +127,13 @@ fun CherrySearchDialog(
                     },
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(48.dp),
+                        .heightIn(min = 48.dp),
                     shape = RoundedCornerShape(16.dp),
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = CardDarkPlumElevated,
-                        contentColor = TextWhite
+                        containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                        contentColor = MaterialTheme.colorScheme.onSurface
                     ),
-                    border = androidx.compose.foundation.BorderStroke(1.dp, PrimaryCherry.copy(alpha = 0.6f))
+                    border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.6f))
                 ) {
                     Row(
                         horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -148,14 +142,14 @@ fun CherrySearchDialog(
                         Icon(
                             imageVector = Icons.Rounded.MyLocation,
                             contentDescription = "GPS",
-                            tint = PrimaryCherry,
+                            tint = MaterialTheme.colorScheme.primary,
                             modifier = Modifier.size(20.dp)
                         )
                         Text(
-                            text = "Use My Current Location",
+                            text = "Use current location",
                             style = MaterialTheme.typography.labelLarge.copy(
                                 fontWeight = FontWeight.SemiBold,
-                                color = TextWhite
+                                color = MaterialTheme.colorScheme.onSurface
                             )
                         )
                     }
@@ -167,16 +161,16 @@ fun CherrySearchDialog(
                     onValueChange = onQueryChange,
                     placeholder = {
                         Text(
-                            text = "Enter city name (e.g., Tokyo, London)...",
+                            text = "Search for a city",
                             style = MaterialTheme.typography.bodyMedium,
-                            color = TextMuted
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     },
                     leadingIcon = {
                         Icon(
                             imageVector = Icons.Rounded.Search,
                             contentDescription = "Search",
-                            tint = CherryBlossom
+                            tint = MaterialTheme.colorScheme.primary
                         )
                     },
                     trailingIcon = {
@@ -185,7 +179,7 @@ fun CherrySearchDialog(
                                 Icon(
                                     imageVector = Icons.Rounded.Close,
                                     contentDescription = "Clear",
-                                    tint = TextMuted
+                                    tint = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
                             }
                         }
@@ -194,12 +188,12 @@ fun CherrySearchDialog(
                     singleLine = true,
                     shape = RoundedCornerShape(18.dp),
                     colors = OutlinedTextFieldDefaults.colors(
-                        focusedContainerColor = CardDarkPlumElevated,
-                        unfocusedContainerColor = CardDarkPlumElevated,
-                        focusedBorderColor = PrimaryCherry,
-                        unfocusedBorderColor = BorderCrimson,
-                        focusedTextColor = TextWhite,
-                        unfocusedTextColor = TextWhite
+                        focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+                        unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+                        focusedBorderColor = MaterialTheme.colorScheme.primary,
+                        unfocusedBorderColor = MaterialTheme.colorScheme.outlineVariant,
+                        focusedTextColor = MaterialTheme.colorScheme.onSurface,
+                        unfocusedTextColor = MaterialTheme.colorScheme.onSurface
                     )
                 )
 
@@ -212,14 +206,14 @@ fun CherrySearchDialog(
                         ) {
                             Icon(
                                 imageVector = Icons.Rounded.History,
-                                contentDescription = "Recent Searches",
-                                tint = TextMuted,
+                                contentDescription = "Recent searches",
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant,
                                 modifier = Modifier.size(16.dp)
                             )
                             Text(
-                                text = "Recent Searches",
+                                text = "Recent searches",
                                 style = MaterialTheme.typography.labelMedium.copy(
-                                    color = TextMuted,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                                     fontWeight = FontWeight.Medium
                                 )
                             )
@@ -233,18 +227,18 @@ fun CherrySearchDialog(
                                 Box(
                                     modifier = Modifier
                                         .clip(RoundedCornerShape(14.dp))
-                                        .background(CardDarkPlumElevated)
-                                        .border(1.dp, BorderCrimson, RoundedCornerShape(14.dp))
+                                        .background(MaterialTheme.colorScheme.surfaceVariant)
+                                        .border(1.dp, MaterialTheme.colorScheme.outlineVariant, RoundedCornerShape(14.dp))
                                         .clickable {
                                             onRecentCityClick(cityName)
                                             onDismiss()
                                         }
-                                        .padding(horizontal = 12.dp, vertical = 6.dp)
+                                        .heightIn(min = 48.dp).padding(horizontal = 12.dp, vertical = 12.dp)
                                 ) {
                                     Text(
                                         text = cityName,
                                         style = MaterialTheme.typography.bodyMedium.copy(
-                                            color = CherryBlossomSoft,
+                                            color = MaterialTheme.colorScheme.onPrimaryContainer,
                                             fontWeight = FontWeight.Medium
                                         )
                                     )
@@ -264,7 +258,7 @@ fun CherrySearchDialog(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         CircularProgressIndicator(
-                            color = PrimaryCherry,
+                            color = MaterialTheme.colorScheme.primary,
                             modifier = Modifier.size(28.dp),
                             strokeWidth = 2.5.dp
                         )
@@ -273,7 +267,7 @@ fun CherrySearchDialog(
                     Text(
                         text = "No locations found. Try checking the spelling.",
                         style = MaterialTheme.typography.bodyMedium.copy(
-                            color = TextMuted
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
                         ),
                         modifier = Modifier.padding(vertical = 12.dp)
                     )
@@ -284,13 +278,13 @@ fun CherrySearchDialog(
                             .heightIn(max = 280.dp),
                         verticalArrangement = Arrangement.spacedBy(4.dp)
                     ) {
-                        items(searchResults) { result ->
+                        items(searchResults, key = { it.id ?: "${it.name}:${it.latitude}:${it.longitude}" }) { result ->
                             SearchResultRow(
                                 result = result,
                                 onClick = { onLocationSelected(result) }
                             )
                             HorizontalDivider(
-                                color = BorderCrimson.copy(alpha = 0.3f),
+                                color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.3f),
                                 thickness = 0.8.dp
                             )
                         }
@@ -323,13 +317,13 @@ private fun SearchResultRow(
             modifier = Modifier
                 .size(36.dp)
                 .clip(CircleShape)
-                .background(CardDarkPlumElevated),
+                .background(MaterialTheme.colorScheme.surfaceVariant),
             contentAlignment = Alignment.Center
         ) {
             Icon(
                 imageVector = Icons.Rounded.LocationOn,
                 contentDescription = "Location",
-                tint = PrimaryCherry,
+                tint = MaterialTheme.colorScheme.primary,
                 modifier = Modifier.size(20.dp)
             )
         }
@@ -339,7 +333,7 @@ private fun SearchResultRow(
                 text = locationTitle,
                 style = MaterialTheme.typography.titleMedium.copy(
                     fontWeight = FontWeight.SemiBold,
-                    color = TextWhite
+                    color = MaterialTheme.colorScheme.onSurface
                 ),
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
@@ -349,7 +343,7 @@ private fun SearchResultRow(
                 Text(
                     text = subtitle,
                     style = MaterialTheme.typography.bodySmall.copy(
-                        color = TextMuted
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
                     ),
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis

@@ -1,112 +1,119 @@
 <div align="center">
-
-# 🍒 Cherry Weather
-
-<p align="center">
-  <img src="app/src/main/res/drawable/icon.png" width="108" alt="Cherry Weather Logo" />
-</p>
-
-> A modern, beautifully crafted Android weather application featuring real-time Open-Meteo forecasts, dynamic custom Canvas weather animations, and Material 3 Expressive theming. 🌤️✨
-
+  <img src="weather.svg" width="96" alt="Cherry Weather app icon" />
+  <h1>Cherry Weather</h1>
+  <p><strong>A softer view of your forecast.</strong></p>
+  <p>Current conditions, hourly forecasts, and a seven-day outlook in a calm CherryApp interface.</p>
+  <p>
+    <img src="https://img.shields.io/badge/version-1.1-AF294A?style=flat-square" alt="Version 1.1" />
+    <img src="https://img.shields.io/badge/Android-7.0%2B-698269?style=flat-square" alt="Android 7.0 and later" />
+    <img src="https://img.shields.io/badge/UI-Jetpack%20Compose-78616B?style=flat-square" alt="Jetpack Compose UI" />
+  </p>
+  <p>
+    <a href="#screenshots">Screenshots</a> ·
+    <a href="#features">Features</a> ·
+    <a href="#getting-started">Get started</a> ·
+    <a href="https://github.com/asta-JC/Cherry-Weather/issues">Feedback</a>
+  </p>
 </div>
 
 ---
 
-## 📱 Overview
+## Overview
 
-**Cherry Weather** is a premium weather companion designed for Android with an expressive Material 3 dark aesthetic. Powered by the keyless Open-Meteo API, it delivers hyper-local current weather conditions, 24-hour hourly trends, 7-day extended forecasts, and advanced meteorological metrics (UV index, wind speed, humidity, pressure, visibility, and dew point) with zero configuration.
+Cherry Weather brings current conditions and upcoming weather together in one scrollable view. Search for a city or use your location, compare hourly and daily forecasts, and keep your preferred appearance and temperature units between visits.
 
----
+## Screenshots
 
-## ✨ Key Features
+<table>
+  <tr><th width="33%">Current weather</th><th width="33%">Forecast</th><th width="33%">Settings</th></tr>
+  <tr>
+    <td align="center"><img src="docs/screenshots/main-light.png" width="250" alt="Current weather in Andijan in Light mode" /></td>
+    <td align="center"><img src="docs/screenshots/forecast-light.png" width="250" alt="Seven-day forecast and weather highlights in Light mode" /></td>
+    <td align="center"><img src="docs/screenshots/settings-light.png" width="250" alt="Appearance settings with Light selected" /></td>
+  </tr>
+  <tr><td align="center">Conditions at a glance.</td><td align="center">Plan the days ahead.</td><td align="center">Choose your appearance.</td></tr>
+</table>
 
-- 🌤️ **Open-Meteo Integration**: Fast, reliable, keyless weather data, hourly trends, and 7-day outlooks.
-- 📍 **Smart Location & Geocoding**: GPS location detection combined with an interactive city search dialog supporting auto-complete.
-- 🎨 **Custom Canvas Animations**: Dynamic particle and vector weather effects rendered via Jetpack Compose `Canvas` (rain, snow, clouds, sun rays).
-- 🌡️ **Instant Unit Toggle**: Switch between Metric (`°C`, `km/h`) and Imperial (`°F`, `mph`) with reactive instant UI updates.
-- 💾 **DataStore Caching**: Persistent user preferences and cached forecasts for instant cold starts and offline resilience.
-- 📱 **Material 3 Expressive**: Edge-to-edge layout immersion with dynamic theming and smooth state transitions.
+Captured from the production app on a physical Samsung Galaxy S22 Ultra in Light mode. These are real forecast screens, not mockups; system status and navigation bars are cropped out.
 
----
+## Features
 
-## 📸 Screenshots & UI Preview
+- **Current and upcoming weather** — see current conditions, hourly temperatures, and a seven-day forecast from Open-Meteo.
+- **City search and recent locations** — search by city name and return to recently viewed places, or request the phone's location.
+- **Weather highlights** — check humidity, wind, UV index, precipitation, sunrise/sunset, and pressure.
+- **Instant unit switching** — switch between Celsius and Fahrenheit with matching wind and precipitation units.
+- **Saved appearance** — choose System default, Light, or Dark in Settings; your choice survives app restarts.
+- **Cached forecasts** — retain the last forecast and location locally, with pull-to-refresh for updated conditions when connected.
 
-| Home | Details | Search |
-| :---: | :---: | :---: |
-| <img src="screenshots/screenshot-home.jpg" width="220" alt="Home" /> | <img src="screenshots/screenshot-details.jpg" width="220" alt="Details" /> | <img src="screenshots/screenshot-search.jpg" width="220" alt="Search" /> |
+## Compatibility
 
----
+| Area | Support |
+| --- | --- |
+| Platform | Android app; minimum SDK 24 (Android 7.0), target/compile SDK 37 |
+| Data | Internet required for fresh forecasts and city search |
+| Location | Optional coarse/fine location permission; manual city search is available |
+| Known limit | Existing `java.time` calls lack desugaring for API 24–25; Android 7 date/time compatibility remains unresolved. Physical-device checks used a newer Android version. |
 
-## 🛠️ Tech Stack & Architecture
+## Getting started
 
-- **UI Toolkit**: [Jetpack Compose](https://developer.android.com/jetpack/compose) & [Material 3](https://m3.material.io/)
-- **Architecture**: MVVM with Unidirectional Data Flow (`StateFlow`)
-- **Networking**: OkHttp & Moshi for JSON parsing
-- **Local Storage**: Jetpack Preferences DataStore
-- **Location**: Android Location Services & Geocoding API
-- **Canvas Graphics**: Custom Compose Canvas particle physics
+### Requirements
 
----
+- A JDK compatible with Gradle 9.6 and Android Gradle Plugin 9.4.1; this build was verified with JDK 25.
+- Android SDK Platform 37 and Android SDK build tools.
+- A physical Android phone with USB debugging enabled for installation.
 
-## 📂 Project Structure
+### Build and run
 
-```tree
-com.asta.cherryweather/
-├── data/
-│   ├── local/              # DataStore user preferences
-│   ├── location/           # GPS location service & permissions
-│   ├── model/              # Weather & Geocoding response models
-│   ├── remote/             # OkHttp, Moshi, and Open-Meteo API clients
-│   └── repository/         # Single source of truth WeatherRepository
-├── ui/
-│   ├── components/         # TopBar, HeroSection, HourlyForecast, DailyForecast, Canvas animations
-│   ├── theme/              # Color palettes, typography, and M3 theme
-│   └── utils/              # Weather code mappers & sample data
-├── viewmodel/              # WeatherViewModel & WeatherUiState
-└── MainActivity.kt         # Entry point activity & lifecycle host
+```bash
+git clone https://github.com/asta-JC/Cherry-Weather.git
+cd Cherry-Weather
+./gradlew assembleDebug
+adb devices
+adb -s YOUR_DEVICE_SERIAL install -r app/build/outputs/apk/debug/app-debug.apk
 ```
 
----
+Open Cherry Weather on the phone. Select a city, or allow location access to load a local forecast. No API key is configured for the existing Open-Meteo endpoints.
 
-## 🚀 Getting Started & Build Instructions
+### Tests
 
-### Prerequisites
-- Android Studio Ladybug or newer
-- JDK 17 or higher
-- Android SDK 26+ (Target SDK 35)
+```bash
+./gradlew testDebugUnitTest
+./gradlew lintDebug
+```
 
-### Build Steps
+The existing unit suite passes. Lint currently reports 22 `NewApi` errors in the date/time utilities described above.
 
-1. **Clone the repository**:
-   ```bash
-   git clone https://github.com/asta-JC/Cherry-Weather.git
-   cd Cherry-Weather
-   ```
+## Built with
 
-2. **Open in Android Studio**:
-   - Open Android Studio and select **Open**.
-   - Navigate to the cloned `Cherry-Weather` directory and let Gradle sync.
+| Layer | Technology |
+| --- | --- |
+| Interface | Kotlin, Jetpack Compose, Material 3 |
+| State | ViewModel, StateFlow, lifecycle-aware Compose collection |
+| Network | Retrofit, OkHttp, Moshi, Open-Meteo forecast and geocoding APIs |
+| Preferences and cache | Jetpack Preferences DataStore |
+| Location | Google Play services location |
+| Build | Gradle 9.6, Android Gradle Plugin 9.4.1 |
 
-3. **Build & Run**:
-   - Connect an Android device or start an emulator.
-   - Run the app via Android Studio or execute via terminal:
-     ```bash
-     ./gradlew :app:assembleDebug
-     ```
+## What's new in 1.1
 
-4. **Run Unit Tests**:
-   ```bash
-   ./gradlew testDebugUnitTest
-   ```
+- Shared cream, rose, and plum CherryApp styling with full header and launcher branding.
+- Settings for System default, Light, and Dark appearance.
+- Calmer forecast cards with larger touch targets, wrapping labels, and cutout-safe spacing.
+- Direct launch into weather content without a custom splash screen.
 
----
+## Feedback
 
-## 📄 License
+[Open an issue](https://github.com/asta-JC/Cherry-Weather/issues) with your app version, Android version, device model, and steps to reproduce. Use non-sensitive screenshots and avoid sharing precise personal coordinates.
+
+## License & credits
 
 This project is developed as part of Asta's project series. Feel free to use and adapt for personal and educational use!
+
+Weather forecasts and city search are provided by [Open-Meteo](https://open-meteo.com/). Third-party libraries retain their respective licenses.
 
 ---
 
 <p align="center">
-  Made with ❤️ & 🍒 by Asta
+  <strong>Made with ❤️ &amp; 🍒 by Asta</strong><br />
+  <sub>Part of the CherryApp family.</sub>
 </p>

@@ -11,6 +11,7 @@ import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import com.asta.cherryweather.data.model.RecentCity
 import com.asta.cherryweather.data.model.TemperatureUnit
+import com.asta.cherryweather.data.model.ThemeMode
 import com.asta.cherryweather.data.model.UserPreferences
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
@@ -27,6 +28,7 @@ class UserPreferencesRepository(private val dataStore: DataStore<Preferences>) {
     constructor(context: Context) : this(context.dataStore)
 
     private object PreferenceKeys {
+        val THEME_MODE = stringPreferencesKey("theme_mode")
         val TEMPERATURE_UNIT = stringPreferencesKey("temperature_unit")
         val ANIMATIONS_ENABLED = booleanPreferencesKey("animations_enabled")
         val LAST_LATITUDE = doublePreferencesKey("last_latitude")
@@ -64,6 +66,7 @@ class UserPreferencesRepository(private val dataStore: DataStore<Preferences>) {
             val recentCities = recentCityItems.map { it.name }
 
             UserPreferences(
+                themeMode = ThemeMode.fromCode(preferences[PreferenceKeys.THEME_MODE]),
                 temperatureUnit = temperatureUnit,
                 isAnimationEnabled = isAnimationEnabled,
                 lastLatitude = lastLatitude,
@@ -75,6 +78,10 @@ class UserPreferencesRepository(private val dataStore: DataStore<Preferences>) {
                 recentCityItems = recentCityItems
             )
         }
+
+    suspend fun setThemeMode(mode: ThemeMode) {
+        dataStore.edit { it[PreferenceKeys.THEME_MODE] = mode.name }
+    }
 
     suspend fun setTemperatureUnit(unit: TemperatureUnit) {
         dataStore.edit { preferences ->

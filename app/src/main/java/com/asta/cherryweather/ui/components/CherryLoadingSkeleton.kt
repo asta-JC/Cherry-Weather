@@ -20,17 +20,16 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Surface
-import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import com.asta.cherryweather.ui.theme.BorderCrimson
-import com.asta.cherryweather.ui.theme.CardDarkPlum
 
 @Composable
 fun CherryLoadingSkeleton(
@@ -48,9 +47,9 @@ fun CherryLoadingSkeleton(
     )
 
     val shimmerColors = listOf(
-        CardDarkPlum,
-        Color(0xFF381B2B),
-        CardDarkPlum
+        MaterialTheme.colorScheme.surface,
+        MaterialTheme.colorScheme.surfaceVariant,
+        MaterialTheme.colorScheme.surface
     )
 
     val brush = Brush.linearGradient(
@@ -68,9 +67,9 @@ fun CherryLoadingSkeleton(
         // Hero Skeleton
         Surface(
             modifier = Modifier.fillMaxWidth(),
-            color = CardDarkPlum,
-            shape = RoundedCornerShape(24.dp),
-            border = androidx.compose.foundation.BorderStroke(1.dp, BorderCrimson)
+            color = MaterialTheme.colorScheme.surface,
+            shape = RoundedCornerShape(20.dp),
+            border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
         ) {
             Column(
                 modifier = Modifier
@@ -128,9 +127,9 @@ fun CherryLoadingSkeleton(
         // Hourly Skeleton Row
         Surface(
             modifier = Modifier.fillMaxWidth(),
-            color = CardDarkPlum,
+            color = MaterialTheme.colorScheme.surface,
             shape = RoundedCornerShape(20.dp),
-            border = androidx.compose.foundation.BorderStroke(1.dp, BorderCrimson)
+            border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
         ) {
             Column(
                 modifier = Modifier
@@ -163,9 +162,9 @@ fun CherryLoadingSkeleton(
         // 7-Day Forecast Skeleton Card
         Surface(
             modifier = Modifier.fillMaxWidth(),
-            color = CardDarkPlum,
-            shape = RoundedCornerShape(24.dp),
-            border = androidx.compose.foundation.BorderStroke(1.dp, BorderCrimson)
+            color = MaterialTheme.colorScheme.surface,
+            shape = RoundedCornerShape(20.dp),
+            border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
         ) {
             Column(
                 modifier = Modifier

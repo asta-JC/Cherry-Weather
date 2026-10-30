@@ -35,15 +35,6 @@ import androidx.compose.ui.unit.sp
 import com.asta.cherryweather.data.model.CurrentWeather
 import com.asta.cherryweather.data.model.DailyItem
 import com.asta.cherryweather.data.model.TemperatureUnit
-import com.asta.cherryweather.ui.theme.BorderCrimson
-import com.asta.cherryweather.ui.theme.CardDarkPlum
-import com.asta.cherryweather.ui.theme.CardDarkPlumElevated
-import com.asta.cherryweather.ui.theme.CherryBlossom
-import com.asta.cherryweather.ui.theme.CherryBlossomSoft
-import com.asta.cherryweather.ui.theme.CherryGold
-import com.asta.cherryweather.ui.theme.PrimaryCherry
-import com.asta.cherryweather.ui.theme.TextMuted
-import com.asta.cherryweather.ui.theme.TextWhite
 import com.asta.cherryweather.ui.utils.WeatherUtils
 import kotlin.math.roundToInt
 
@@ -98,13 +89,13 @@ fun CherryDetailsGrid(
                 modifier = Modifier
                     .size(6.dp)
                     .clip(CircleShape)
-                    .background(PrimaryCherry)
+                    .background(MaterialTheme.colorScheme.primary)
             )
             Text(
                 text = "Weather Highlights",
                 style = MaterialTheme.typography.titleMedium.copy(
                     fontWeight = FontWeight.SemiBold,
-                    color = TextWhite
+                    color = MaterialTheme.colorScheme.onSurface
                 )
             )
         }
@@ -179,9 +170,9 @@ private fun DetailCard(
 ) {
     Surface(
         modifier = modifier,
-        color = CardDarkPlum.copy(alpha = 0.85f),
-        shape = RoundedCornerShape(22.dp),
-        border = androidx.compose.foundation.BorderStroke(1.dp, BorderCrimson)
+        color = MaterialTheme.colorScheme.surface.copy(alpha = 0.85f),
+        shape = RoundedCornerShape(20.dp),
+        border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
     ) {
         Column(
             modifier = Modifier
@@ -201,14 +192,14 @@ private fun DetailCard(
                     Icon(
                         imageVector = icon,
                         contentDescription = label,
-                        tint = CherryBlossom,
+                        tint = MaterialTheme.colorScheme.primary,
                         modifier = Modifier.size(18.dp)
                     )
                     Text(
                         text = label,
                         style = MaterialTheme.typography.labelMedium.copy(
                             fontWeight = FontWeight.Medium,
-                            color = TextMuted
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     )
                 }
@@ -217,8 +208,8 @@ private fun DetailCard(
                     Box(
                         modifier = Modifier
                             .clip(RoundedCornerShape(8.dp))
-                            .background(CardDarkPlumElevated)
-                            .border(1.dp, BorderCrimson, RoundedCornerShape(8.dp))
+                            .background(MaterialTheme.colorScheme.surfaceVariant)
+                            .border(1.dp, MaterialTheme.colorScheme.outlineVariant, RoundedCornerShape(8.dp))
                             .padding(horizontal = 6.dp, vertical = 2.dp)
                     ) {
                         Text(
@@ -226,7 +217,7 @@ private fun DetailCard(
                             style = MaterialTheme.typography.labelSmall.copy(
                                 fontSize = 10.sp,
                                 fontWeight = FontWeight.SemiBold,
-                                color = CherryGold
+                                color = MaterialTheme.colorScheme.tertiary
                             )
                         )
                     }
@@ -239,7 +230,7 @@ private fun DetailCard(
                 text = value,
                 style = MaterialTheme.typography.titleLarge.copy(
                     fontWeight = FontWeight.Bold,
-                    color = TextWhite
+                    color = MaterialTheme.colorScheme.onSurface
                 )
             )
         }

@@ -17,8 +17,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.asta.cherryweather.ui.theme.PrimaryCherry
-import com.asta.cherryweather.ui.theme.TextMuted
 
 @Composable
 fun CherryFooter(
@@ -36,14 +34,14 @@ fun CherryFooter(
                 .padding(end = 8.dp)
                 .size(6.dp)
                 .clip(CircleShape)
-                .background(PrimaryCherry)
+                .background(MaterialTheme.colorScheme.primary)
         )
 
         Text(
-            text = "Cherry Weather  •  Cherry Edition 🍒",
+            text = "Weather by Open-Meteo",
             style = MaterialTheme.typography.bodySmall.copy(
                 fontWeight = FontWeight.Medium,
-                color = TextMuted,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
                 fontSize = 12.sp
             )
         )

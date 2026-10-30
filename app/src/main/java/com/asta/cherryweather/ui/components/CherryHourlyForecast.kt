@@ -23,20 +23,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.asta.cherryweather.data.model.HourlyItem
 import com.asta.cherryweather.data.model.TemperatureUnit
-import com.asta.cherryweather.ui.theme.BorderCrimson
-import com.asta.cherryweather.ui.theme.CardDarkPlum
-import com.asta.cherryweather.ui.theme.CardDarkPlumElevated
-import com.asta.cherryweather.ui.theme.CherryBlossom
-import com.asta.cherryweather.ui.theme.CherryBlossomSoft
-import com.asta.cherryweather.ui.theme.PrimaryCherry
-import com.asta.cherryweather.ui.theme.TextMuted
-import com.asta.cherryweather.ui.theme.TextWhite
 import com.asta.cherryweather.ui.utils.WeatherUtils
 
 @Composable
@@ -61,13 +52,13 @@ fun CherryHourlyForecast(
                 modifier = Modifier
                     .size(6.dp)
                     .clip(CircleShape)
-                    .background(PrimaryCherry)
+                    .background(MaterialTheme.colorScheme.primary)
             )
             Text(
                 text = "Hourly Forecast",
                 style = MaterialTheme.typography.titleMedium.copy(
                     fontWeight = FontWeight.SemiBold,
-                    color = TextWhite
+                    color = MaterialTheme.colorScheme.onSurface
                 )
             )
         }
@@ -100,21 +91,20 @@ private fun HourlyCard(
     val surfaceModifier = if (isNow) {
         Modifier
             .width(80.dp)
-            .shadow(10.dp, RoundedCornerShape(22.dp), spotColor = PrimaryCherry, ambientColor = PrimaryCherry)
-            .clip(RoundedCornerShape(22.dp))
+            .clip(RoundedCornerShape(20.dp))
     } else {
         Modifier
             .width(80.dp)
-            .clip(RoundedCornerShape(22.dp))
+            .clip(RoundedCornerShape(20.dp))
     }
 
     Surface(
         modifier = surfaceModifier,
-        color = if (isNow) CardDarkPlumElevated else CardDarkPlum.copy(alpha = 0.85f),
-        shape = RoundedCornerShape(22.dp),
+        color = if (isNow) MaterialTheme.colorScheme.surfaceVariant else MaterialTheme.colorScheme.surface.copy(alpha = 0.85f),
+        shape = RoundedCornerShape(20.dp),
         border = androidx.compose.foundation.BorderStroke(
             width = if (isNow) 1.5.dp else 1.dp,
-            color = if (isNow) PrimaryCherry else BorderCrimson
+            color = if (isNow) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outlineVariant
         )
     ) {
         Column(
@@ -130,14 +120,14 @@ private fun HourlyCard(
                     fontWeight = if (isNow) FontWeight.Bold else FontWeight.Medium,
                     fontSize = 12.sp
                 ),
-                color = if (isNow) CherryBlossom else TextMuted
+                color = if (isNow) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
             )
 
             // Weather Icon
             Icon(
                 imageVector = icon,
                 contentDescription = "Hourly Weather",
-                tint = if (isNow) PrimaryCherry else TextWhite,
+                tint = if (isNow) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface,
                 modifier = Modifier.size(26.dp)
             )
 
@@ -147,7 +137,7 @@ private fun HourlyCard(
                 style = MaterialTheme.typography.titleMedium.copy(
                     fontWeight = FontWeight.Bold
                 ),
-                color = TextWhite
+                color = MaterialTheme.colorScheme.onSurface
             )
 
             // Rain amount if any
@@ -155,7 +145,7 @@ private fun HourlyCard(
                 Box(
                     modifier = Modifier
                         .clip(RoundedCornerShape(8.dp))
-                        .background(PrimaryCherry.copy(alpha = 0.2f))
+                        .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.2f))
                         .padding(horizontal = 6.dp, vertical = 2.dp)
                 ) {
                     Text(
@@ -164,7 +154,7 @@ private fun HourlyCard(
                             fontSize = 9.sp,
                             fontWeight = FontWeight.SemiBold
                         ),
-                        color = CherryBlossomSoft
+                        color = MaterialTheme.colorScheme.onPrimaryContainer
                     )
                 }
             }

@@ -10,6 +10,18 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
+import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.rememberCoroutineScope
+import com.asta.cherryweather.data.local.UserPreferencesRepository
+import com.asta.cherryweather.data.model.ThemeMode
+import com.asta.cherryweather.ui.components.CherrySettingsDialog
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.launch
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.tooling.preview.Preview
@@ -30,7 +42,25 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
 
         setContent {
-            CherryWeatherTheme {
+            val preferencesRepository = remember { UserPreferencesRepository(applicationContext) }
+            val themeFlow = remember { preferencesRepository.userPreferencesFlow.map { it.themeMode }.distinctUntilChanged() }
+            val themeMode by themeFlow.collectAsStateWithLifecycle(initialValue = null)
+            // Resolve the persisted choice before showing the app's first Compose frame.
+            val resolvedMode = themeMode ?: return@setContent
+            val scope = rememberCoroutineScope()
+            var settingsOpen by rememberSaveable { mutableStateOf(false) }
+            CherryWeatherTheme(darkTheme = when (resolvedMode) {
+                ThemeMode.SYSTEM -> isSystemInDarkTheme()
+                ThemeMode.LIGHT -> false
+                ThemeMode.DARK -> true
+            }) {
+                if (settingsOpen) {
+                    CherrySettingsDialog(
+                        selectedMode = resolvedMode,
+                        onModeSelected = { mode -> scope.launch { preferencesRepository.setThemeMode(mode) } },
+                        onDismiss = { settingsOpen = false }
+                    )
+                }
                 val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
                 val permissionLauncher = rememberLauncherForActivityResult(
@@ -69,7 +99,7 @@ class MainActivity : ComponentActivity() {
                             weatherResponse = null,
                             isLoading = true,
                             unit = TemperatureUnit.CELSIUS,
-                            animationsEnabled = true,
+
                             hasLocationPermission = true,
                             hasSavedLocation = false,
                             isGpsDisabled = false,
@@ -84,8 +114,9 @@ class MainActivity : ComponentActivity() {
                             onRecentCitySelected = { viewModel.selectRecentCity(it) },
                             onDismissPermissionBanner = { viewModel.dismissPermissionBanner() },
                             onUnitToggle = { viewModel.toggleTemperatureUnit() },
-                            onAnimationToggle = { viewModel.toggleAnimations() },
+
                             onRefresh = { viewModel.refreshWeather() },
+                            onSettingsClick = { settingsOpen = true },
                             onOpenGpsSettings = onOpenGpsSettings
                         )
                     }
@@ -97,7 +128,7 @@ class MainActivity : ComponentActivity() {
                             isLoading = false,
                             isRefreshing = state.isRefreshing,
                             unit = state.temperatureUnit,
-                            animationsEnabled = state.animationsEnabled,
+
                             hasLocationPermission = state.locationPermissionGranted,
                             hasSavedLocation = state.hasSavedLocation,
                             isGpsDisabled = !state.gpsEnabled,
@@ -112,8 +143,9 @@ class MainActivity : ComponentActivity() {
                             onRecentCitySelected = { viewModel.selectRecentCity(it) },
                             onDismissPermissionBanner = { viewModel.dismissPermissionBanner() },
                             onUnitToggle = { viewModel.toggleTemperatureUnit() },
-                            onAnimationToggle = { viewModel.toggleAnimations() },
+
                             onRefresh = { viewModel.refreshWeather() },
+                            onSettingsClick = { settingsOpen = true },
                             onOpenGpsSettings = onOpenGpsSettings
                         )
                     }
@@ -125,7 +157,7 @@ class MainActivity : ComponentActivity() {
                             isLoading = false,
                             errorMessage = state.message,
                             unit = TemperatureUnit.CELSIUS,
-                            animationsEnabled = true,
+
                             hasLocationPermission = false,
                             hasSavedLocation = false,
                             isGpsDisabled = false,
@@ -140,9 +172,10 @@ class MainActivity : ComponentActivity() {
                             onRecentCitySelected = { viewModel.selectRecentCity(it) },
                             onDismissPermissionBanner = { viewModel.dismissPermissionBanner() },
                             onUnitToggle = { viewModel.toggleTemperatureUnit() },
-                            onAnimationToggle = { viewModel.toggleAnimations() },
+
                             onRefresh = { viewModel.refreshWeather() },
                             onRetry = { viewModel.refreshWeather() },
+                            onSettingsClick = { settingsOpen = true },
                             onOpenGpsSettings = onOpenGpsSettings
                         )
                     }
@@ -167,7 +200,7 @@ fun CherryWeatherViewPreview() {
             weatherResponse = SampleData.mockWeatherResponse,
             isLoading = false,
             unit = TemperatureUnit.CELSIUS,
-            animationsEnabled = true,
+
             hasLocationPermission = true,
             hasSavedLocation = true,
             isGpsDisabled = false,
@@ -182,7 +215,7 @@ fun CherryWeatherViewPreview() {
             onRecentCitySelected = {},
             onDismissPermissionBanner = {},
             onUnitToggle = {},
-            onAnimationToggle = {}
+
         )
     }
 }
@@ -196,7 +229,7 @@ fun CherryWeatherLoadingPreview() {
             weatherResponse = null,
             isLoading = true,
             unit = TemperatureUnit.CELSIUS,
-            animationsEnabled = true,
+
             hasLocationPermission = true,
             hasSavedLocation = false,
             isGpsDisabled = false,
@@ -211,7 +244,7 @@ fun CherryWeatherLoadingPreview() {
             onRecentCitySelected = {},
             onDismissPermissionBanner = {},
             onUnitToggle = {},
-            onAnimationToggle = {}
+
         )
     }
 }
@@ -225,7 +258,7 @@ fun CherryWeatherPermissionBannerPreview() {
             weatherResponse = SampleData.mockWeatherResponse,
             isLoading = false,
             unit = TemperatureUnit.CELSIUS,
-            animationsEnabled = true,
+
             hasLocationPermission = false,
             hasSavedLocation = false,
             isGpsDisabled = false,
@@ -240,7 +273,7 @@ fun CherryWeatherPermissionBannerPreview() {
             onRecentCitySelected = {},
             onDismissPermissionBanner = {},
             onUnitToggle = {},
-            onAnimationToggle = {}
+
         )
     }
 }
